@@ -1,0 +1,2201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>椰椰Nail · 美甲管理工作台</title>
+<!-- PWA / iOS 主屏幕应用 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff6b9d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="椰椰Nail">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<style>
+:root {
+  --primary: #ff6b9d;
+  --primary-light: #ffc2d6;
+  --primary-dark: #e84c7d;
+  --bg: #f7f6fb;
+  --card: #ffffff;
+  --text: #2d2d3a;
+  --text-light: #8a8a9a;
+  --border: #f0eef5;
+  --success: #52c41a;
+  --warning: #faad14;
+  --danger: #ff4d4f;
+  --info: #1890ff;
+  --shadow: 0 4px 20px rgba(255, 107, 157, 0.08);
+  --shadow-hover: 0 8px 28px rgba(255, 107, 157, 0.16);
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== 侧边栏 ===== */
+.sidebar {
+  position: fixed;
+  left: 0; top: 0;
+  width: 220px;
+  height: 100vh;
+  background: linear-gradient(180deg, #ff6b9d 0%, #ff8fab 100%);
+  padding: 24px 0;
+  z-index: 100;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 0 24px 28px;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  margin-bottom: 16px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.logo-icon {
+  width: 38px; height: 38px;
+  background: rgba(255,255,255,0.25);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.logo-icon svg { width: 22px; height: 22px; fill: #fff; }
+
+.nav-list { flex: 1; padding: 0 12px; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  color: rgba(255,255,255,0.85);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 4px;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.nav-item:hover { background: rgba(255,255,255,0.15); color: #fff; }
+
+.nav-item.active {
+  background: rgba(255,255,255,0.95);
+  color: var(--primary-dark);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+.nav-item:not(.active) svg { fill: rgba(255,255,255,0.85); }
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.75);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* ===== 主内容区 ===== */
+.main {
+  margin-left: 220px;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+
+.menu-toggle {
+  display: none;
+  background: var(--card);
+  border: none;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  align-items: center;
+  justify-content: center;
+}
+
+.page-title { font-size: 22px; font-weight: 700; }
+.page-subtitle { color: var(--text-light); font-size: 13px; margin-top: 2px; }
+
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+
+.date-pill {
+  background: var(--card);
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  color: var(--text-light);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+  font-size: 14px;
+}
+
+/* ===== 页面通用 ===== */
+.page { display: none; animation: fadeIn 0.3s; }
+.page.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ===== 统计卡片 ===== */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  right: -20px; top: -20px;
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  opacity: 0.12;
+}
+
+.stat-card.pink::before { background: var(--primary); }
+.stat-card.blue::before { background: var(--info); }
+.stat-card.green::before { background: var(--success); }
+.stat-card.orange::before { background: var(--warning); }
+
+.stat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 12px;
+}
+.stat-card.pink .stat-icon { background: var(--primary-light); }
+.stat-card.blue .stat-icon { background: #d6e9ff; }
+.stat-card.green .stat-icon { background: #d9f7be; }
+.stat-card.orange .stat-icon { background: #fff1d6; }
+.stat-icon svg { width: 22px; height: 22px; }
+.stat-card.pink .stat-icon svg { fill: var(--primary-dark); }
+.stat-card.blue .stat-icon svg { fill: var(--info); }
+.stat-card.green .stat-icon svg { fill: var(--success); }
+.stat-card.orange .stat-icon svg { fill: var(--warning); }
+
+.stat-label { color: var(--text-light); font-size: 13px; margin-bottom: 4px; }
+.stat-value { font-size: 26px; font-weight: 700; }
+.stat-trend { font-size: 12px; margin-top: 6px; }
+.stat-trend.up { color: var(--success); }
+.stat-trend.down { color: var(--danger); }
+
+/* ===== 卡片容器 ===== */
+.panel {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.panel-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.panel-title::before { content: ''; width: 4px; height: 18px; background: var(--primary); border-radius: 2px; }
+
+.header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ===== 搜索栏 ===== */
+.search-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.search-input-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.search-input-wrap svg {
+  position: absolute;
+  left: 14px; top: 50%;
+  transform: translateY(-50%);
+  width: 16px; height: 16px;
+  fill: var(--text-light);
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  background: var(--bg);
+  transition: all 0.2s;
+  outline: none;
+  font-family: inherit;
+}
+
+.search-input:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(255,107,157,0.1); }
+
+/* 日期筛选器 */
+.date-filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.date-filter select,
+.date-filter input[type="date"] {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  background: var(--bg);
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s;
+}
+.date-filter select:focus,
+.date-filter input[type="date"]:focus {
+  border-color: var(--primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255,107,157,0.1);
+}
+.date-filter input[type="date"] { color: var(--text); }
+.date-filter .clear-date {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--text-light);
+  cursor: pointer;
+  font-size: 13px;
+}
+.date-filter .clear-date:hover { color: var(--danger); border-color: var(--danger); }
+
+/* ===== 按钮 ===== */
+.btn {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.btn svg { width: 14px; height: 14px; }
+
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 12px rgba(255,107,157,0.3); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(255,107,157,0.4); }
+.btn-primary svg { fill: #fff; }
+.btn-danger { background: #fff1f0; color: var(--danger); border: 1px solid #ffccc7; }
+.btn-danger:hover { background: #ffccc7; }
+.btn-danger svg { fill: var(--danger); }
+.btn-ghost { background: var(--bg); color: var(--text); }
+.btn-ghost:hover { background: var(--border); }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 8px; }
+.btn-sm svg { width: 12px; height: 12px; }
+
+/* ===== 表格 ===== */
+.table-wrap { overflow-x: auto; border-radius: 12px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  background: var(--bg);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-light);
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+
+td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+tbody tr { transition: background 0.15s; }
+tbody tr:hover { background: #fff8fb; }
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.tag.pink { background: var(--primary-light); color: var(--primary-dark); }
+.tag.green { background: #d9f7be; color: var(--success); }
+.tag.blue { background: #d6e9ff; color: var(--info); }
+.tag.orange { background: #fff1d6; color: var(--warning); }
+.tag.gray { background: #f0f0f0; color: #999; }
+
+.member-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.row-actions { display: flex; gap: 6px; }
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+}
+.empty-state svg { width: 48px; height: 48px; fill: var(--border); margin-bottom: 12px; }
+
+/* ===== 美甲师卡片 ===== */
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.tech-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.tech-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); }
+
+.tech-avatar {
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  color: #fff;
+  font-weight: 700;
+}
+
+.tech-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.tech-role { color: var(--text-light); font-size: 12px; margin-bottom: 12px; }
+
+.tech-stats {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.tech-stat-item .num { font-size: 18px; font-weight: 700; color: var(--primary); }
+.tech-stat-item .label { font-size: 11px; color: var(--text-light); }
+
+.tech-status {
+  position: absolute;
+  top: 14px; right: 14px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.tech-status.online { background: var(--success); box-shadow: 0 0 0 3px #d9f7be; }
+.tech-status.busy { background: var(--warning); box-shadow: 0 0 0 3px #fff1d6; }
+.tech-status.offline { background: #d9d9d9; box-shadow: 0 0 0 3px #f0f0f0; }
+
+/* ===== 今日收入卡片 ===== */
+.income-hero {
+  background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+  border-radius: var(--radius);
+  padding: 28px;
+  color: #fff;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.income-hero-bg svg {
+  position: absolute;
+  right: 24px; bottom: -10px;
+  width: 140px; height: 140px;
+  opacity: 0.18;
+  fill: #fff;
+}
+
+.income-hero-label { font-size: 14px; opacity: 0.9; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.income-hero-amount { font-size: 38px; font-weight: 700; margin-bottom: 6px; }
+.income-hero-trend { font-size: 13px; opacity: 0.9; }
+.income-hero-label svg { width: 16px; height: 16px; fill: #fff; }
+
+.income-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.progress-bar {
+  background: var(--bg);
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+/* ===== 模态框 ===== */
+.modal-mask {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-mask.show { display: flex; }
+
+.modal {
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalIn 0.25s;
+}
+
+@keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.modal-title svg { width: 20px; height: 20px; fill: var(--primary); }
+
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+  background: var(--bg);
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(255,107,157,0.1); }
+.form-textarea { resize: vertical; min-height: 70px; }
+
+.form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+/* 支付渠道明细 */
+.pay-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.pay-list { display: flex; flex-direction: column; gap: 8px; }
+.pay-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 60px;
+  gap: 8px;
+  align-items: center;
+}
+.pay-row select, .pay-row input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--bg);
+  font-family: inherit;
+  outline: none;
+}
+.pay-row select:focus, .pay-row input:focus {
+  border-color: var(--primary);
+  background: #fff;
+}
+.pay-row .pay-del {
+  background: #fff1f0;
+  color: var(--danger);
+  border: 1px solid #ffccc7;
+  padding: 8px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.pay-summary {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--bg);
+  border-radius: 10px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.pay-status.match { color: var(--success); font-weight: 700; }
+.pay-status.mismatch { color: var(--danger); font-weight: 700; }
+.pay-status.empty { color: var(--text-light); }
+
+/* 多选 pill 标签（预约仍用） */
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg);
+  transition: all 0.2s;
+}
+.check-pill:hover { border-color: var(--primary); }
+.check-pill input[type="checkbox"] { margin: 0; cursor: pointer; }
+.check-pill:has(input:checked) {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary-dark);
+  font-weight: 600;
+}
+.selected-tags {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.selected-tag {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* 项目分项金额行（消费弹窗） */
+.item-list { display: flex; flex-direction: column; gap: 8px; }
+.item-row {
+  display: grid;
+  grid-template-columns: 86px 1fr 96px;
+  gap: 8px;
+  align-items: center;
+}
+.item-row .item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.item-row select, .item-row input {
+  padding: 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--bg);
+  font-family: inherit;
+  outline: none;
+}
+.item-row select:focus, .item-row input:focus {
+  border-color: var(--primary);
+  background: #fff;
+}
+.item-row input.item-amt { text-align: right; }
+.item-row:has(input.item-amt:not(:placeholder-shown)) .item-name {
+  color: var(--primary-dark);
+}
+.item-total {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, var(--primary-light), #fff);
+  border: 1.5px dashed var(--primary);
+  border-radius: 10px;
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.item-total .total-label { font-weight: 600; color: var(--text); }
+.item-total .total-amt { font-size: 18px; font-weight: 800; color: var(--primary-dark); }
+.item-hint { font-size: 12px; color: var(--text-light); margin-top: 6px; }
+
+/* 消费列表分项明细小标签 */
+.item-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.item-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text);
+}
+.item-chip em { font-style: normal; color: var(--primary-dark); font-weight: 700; }
+
+/* 按月份分组的列表 */
+tr.month-divider td {
+  padding: 0 !important;
+  border: none !important;
+}
+.month-group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  margin: 10px 0 2px;
+  background: linear-gradient(90deg, var(--primary-light), rgba(255,255,255,0));
+  border-left: 3px solid var(--primary);
+  border-radius: 0 10px 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+.month-group-header .month-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-light);
+  background: #fff;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100px);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 12px 24px;
+  border-radius: 999px;
+  z-index: 300;
+  font-size: 14px;
+  transition: transform 0.3s;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ===== 底部导航（手机） ===== */
+.bottom-nav { display: none; }
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+  .sidebar.open { transform: translateX(0); }
+
+  .main { margin-left: 0; padding: 16px 14px 90px; }
+
+  .menu-toggle { display: flex; }
+
+  .page-title { font-size: 18px; }
+
+  .stat-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 20px; }
+  .stat-icon { width: 36px; height: 36px; }
+  .stat-icon svg { width: 18px; height: 18px; }
+
+  .panel { padding: 14px; }
+
+  .income-hero { padding: 20px; }
+  .income-hero-amount { font-size: 28px; }
+
+  .income-summary { grid-template-columns: 1fr; }
+
+  .tech-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .tech-card { padding: 14px; }
+  .tech-avatar { width: 56px; height: 56px; font-size: 22px; }
+
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: #fff;
+    box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+    z-index: 100;
+    padding: 6px 0 env(safe-area-inset-bottom);
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    text-align: center;
+    padding: 8px 0;
+    color: var(--text-light);
+    cursor: pointer;
+    font-size: 10px;
+    transition: color 0.2s;
+  }
+  .bottom-nav-item.active { color: var(--primary); }
+  .bottom-nav-item svg {
+    width: 22px; height: 22px;
+    fill: currentColor;
+    display: block;
+    margin: 0 auto 3px;
+  }
+
+  th, td { padding: 10px 8px; font-size: 12px; }
+  .topbar-right .date-pill { display: none; }
+}
+
+@media (max-width: 380px) {
+  .stat-grid { grid-template-columns: 1fr; }
+  .tech-grid { grid-template-columns: 1fr; }
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 99;
+}
+.overlay.show { display: block; }
+
+.text-pink { color: var(--primary); }
+.text-success { color: var(--success); }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--danger); }
+.text-light { color: var(--text-light); }
+.fw-700 { font-weight: 700; }
+
+input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+</style>
+</head>
+<body>
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
+  <defs>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 002 2h14c1.11 0 2-.89 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.11 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></symbol>
+    <symbol id="i-nail" viewBox="0 0 24 24"><path d="M9.64 7.64a3.5 3.5 0 1 0-5.28 4.01 3.5 3.5 0 0 0 5.28-4.01zM5.74 10.4a1.5 1.5 0 0 1 2.62-1.5L5.74 10.4zm9.62-2.76a3.5 3.5 0 1 0-5.28 4.01 3.5 3.5 0 0 0 5.28-4.01zm-3.9 2.76a1.5 1.5 0 0 1 2.62-1.5l-2.62 1.5zM12 22l4-4-3.5-3.5L12 22zM7 18l-3-3 1.5-1.5L7 18z"/></symbol>
+    <symbol id="i-money" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V20h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></symbol>
+    <symbol id="i-add" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+    <symbol id="i-delete" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 000-1.41l-2.34-2.34a.996.996 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></symbol>
+    <symbol id="i-date" viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 002 2h14c1.11 0 2-.89 2-2V5c0-1.1-.89-2-2-2zm0 16H5V8h14v11z"/></symbol>
+    <symbol id="i-empty" viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .89-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2zm0 16H5V5h14v14z"/></symbol>
+    <symbol id="i-trend-up" viewBox="0 0 24 24"><path d="M3.5 17.5l6-6.01 4 4L22 6.92 20.49 5.5l-6.99 7.49-4-4L2 16.5l1.5 1z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></symbol>
+    <symbol id="i-todo" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M19.5 3.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2v14H3v3c0 1.66 1.34 3 3 3h12c1.66 0 3-1.34 3-3V2l-1.5 1.5zM19 19c0 .55-.45 1-1 1s-1-.45-1-1v-3H8V5h11v14z"/><path d="M9 7h6v2H9zm0 3h6v2H9z"/></symbol>
+  </defs>
+</svg>
+
+<!-- 侧边栏 -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon"><svg><use href="#i-nail"/></svg></div>
+      <span>椰椰Nail</span>
+    </div>
+  </div>
+  <nav class="nav-list" id="navList">
+    <div class="nav-item active" data-page="members">
+      <svg><use href="#i-user"/></svg> 会员登记
+    </div>
+    <div class="nav-item" data-page="consume">
+      <svg><use href="#i-card"/></svg> 会员消费记录
+    </div>
+    <div class="nav-item" data-page="booking">
+      <svg><use href="#i-cal"/></svg> 预约登记
+    </div>
+    <div class="nav-item" data-page="techs">
+      <svg><use href="#i-star"/></svg> 美甲师
+    </div>
+    <div class="nav-item" data-page="income">
+      <svg><use href="#i-money"/></svg> 今日收入
+    </div>
+  </nav>
+  <div class="sidebar-footer">© 2026 椰椰Nail 工作室</div>
+</aside>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <svg width="20" height="20" fill="#2d2d3a"><use href="#i-list"/></svg>
+      </button>
+      <div>
+        <div class="page-title" id="pageTitle">会员登记</div>
+        <div class="page-subtitle" id="pageSubtitle">管理你的会员信息与充值记录</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="date-pill"><svg width="14" height="14" fill="currentColor"><use href="#i-cal"/></svg> <span id="todayDate"></span></div>
+      <div class="avatar">店长</div>
+    </div>
+  </div>
+
+  <!-- ===== 会员登记 ===== -->
+  <section class="page active" id="page-members">
+    <div class="stat-grid">
+      <div class="stat-card pink">
+        <div class="stat-icon"><svg><use href="#i-user"/></svg></div>
+        <div class="stat-label">会员总数</div>
+        <div class="stat-value" id="memberCount">0</div>
+        <div class="stat-trend up">↑ 本月新增 <span id="newMembersMonth">0</span> 人</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><svg><use href="#i-money"/></svg></div>
+        <div class="stat-label">充值总额</div>
+        <div class="stat-value">¥<span id="totalRecharge">0</span></div>
+        <div class="stat-trend up">↑ 累计充值笔数 <span id="rechargeCount">0</span> 笔</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><svg><use href="#i-wallet"/></svg></div>
+        <div class="stat-label">会员余额总计</div>
+        <div class="stat-value">¥<span id="totalBalance">0</span></div>
+        <div class="stat-trend">实时数据</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><svg><use href="#i-star"/></svg></div>
+        <div class="stat-label">VIP 会员</div>
+        <div class="stat-value" id="vipCount">0</div>
+        <div class="stat-trend">占比 <span id="vipRate">0%</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">会员列表</div>
+        <div class="header-actions">
+          <button class="btn btn-ghost btn-sm" onclick="selectedMemberIds.length && deleteMembers()" id="btnDeleteSelected" style="display:none;">
+            <svg><use href="#i-delete"/></svg> 删除选中
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="deleteAllMembers()">
+            <svg><use href="#i-delete"/></svg> 删除任务
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openMemberModal()">
+            <svg><use href="#i-add"/></svg> 新增任务
+          </button>
+        </div>
+      </div>
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <svg><use href="#i-search"/></svg>
+          <input type="text" class="search-input" id="memberSearch" placeholder="搜索会员姓名 / 手机号 / 会员卡号..." oninput="renderMembers()">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" onchange="toggleSelectAll(this)" id="selectAll"></th>
+              <th>会员</th>
+              <th>手机号</th>
+              <th>会员卡号</th>
+              <th>等级</th>
+              <th>余额</th>
+              <th>累计充值</th>
+              <th>注册日期</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="memberTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 会员消费记录 ===== -->
+  <section class="page" id="page-consume">
+    <div class="stat-grid">
+      <div class="stat-card pink">
+        <div class="stat-icon"><svg><use href="#i-receipt"/></svg></div>
+        <div class="stat-label">消费总笔数</div>
+        <div class="stat-value" id="consumeTotalCount">0</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><svg><use href="#i-money"/></svg></div>
+        <div class="stat-label">消费总金额</div>
+        <div class="stat-value">¥<span id="consumeTotalAmount">0</span></div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><svg><use href="#i-trend-up"/></svg></div>
+        <div class="stat-label">今日消费</div>
+        <div class="stat-value">¥<span id="consumeToday">0</span></div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><svg><use href="#i-card"/></svg></div>
+        <div class="stat-label">客单价</div>
+        <div class="stat-value">¥<span id="avgTicket">0</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">消费明细</div>
+        <button class="btn btn-primary btn-sm" onclick="openConsumeModal()">
+          <svg><use href="#i-add"/></svg> 新增消费
+        </button>
+      </div>
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <svg><use href="#i-search"/></svg>
+          <input type="text" class="search-input" id="consumeSearch" placeholder="搜索会员 / 美甲师 / 项目..." oninput="renderConsume()">
+        </div>
+        <div class="date-filter">
+          <select id="consumeDateType" onchange="onConsumeDateType()">
+            <option value="all">全部日期</option>
+            <option value="today">今日</option>
+            <option value="month">本月</option>
+            <option value="day">指定日期</option>
+          </select>
+          <input type="date" id="consumeDate" style="display:none;" onchange="renderConsume()">
+          <button class="clear-date" style="display:none;" id="consumeClearDate" onclick="clearConsumeDate()">清除</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>会员</th>
+              <th>项目</th>
+              <th>金额</th>
+              <th>支付方式</th>
+              <th>美甲师</th>
+              <th>时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="consumeTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 预约登记 ===== -->
+  <section class="page" id="page-booking">
+    <div class="stat-grid">
+      <div class="stat-card pink">
+        <div class="stat-icon"><svg><use href="#i-cal"/></svg></div>
+        <div class="stat-label">今日预约</div>
+        <div class="stat-value" id="bookingToday">0</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><svg><use href="#i-todo"/></svg></div>
+        <div class="stat-label">待确认</div>
+        <div class="stat-value" id="bookingPending">0</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><svg><use href="#i-date"/></svg></div>
+        <div class="stat-label">已确认</div>
+        <div class="stat-value" id="bookingConfirmed">0</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><svg><use href="#i-list"/></svg></div>
+        <div class="stat-label">总预约数</div>
+        <div class="stat-value" id="bookingTotal">0</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">预约列表</div>
+        <button class="btn btn-primary btn-sm" onclick="openBookingModal()">
+          <svg><use href="#i-add"/></svg> 新增预约
+        </button>
+      </div>
+      <div class="search-bar">
+        <div class="search-input-wrap">
+          <svg><use href="#i-search"/></svg>
+          <input type="text" class="search-input" id="bookingSearch" placeholder="搜索会员 / 美甲师 / 项目..." oninput="renderBooking()">
+        </div>
+        <div class="date-filter">
+          <select id="bookingDateType" onchange="onBookingDateType()">
+            <option value="all">全部日期</option>
+            <option value="today">今日</option>
+            <option value="month">本月</option>
+            <option value="day">指定日期</option>
+          </select>
+          <input type="date" id="bookingDate" style="display:none;" onchange="renderBooking()">
+          <button class="clear-date" style="display:none;" id="bookingClearDate" onclick="clearBookingDate()">清除</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>会员</th>
+              <th>项目</th>
+              <th>美甲师</th>
+              <th>预约时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="bookingTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 美甲师 ===== -->
+  <section class="page" id="page-techs">
+    <div class="stat-grid">
+      <div class="stat-card pink">
+        <div class="stat-icon"><svg><use href="#i-nail"/></svg></div>
+        <div class="stat-label">美甲师总数</div>
+        <div class="stat-value" id="techCount">0</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><svg><use href="#i-user"/></svg></div>
+        <div class="stat-label">在线</div>
+        <div class="stat-value" id="techOnline">0</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><svg><use href="#i-date"/></svg></div>
+        <div class="stat-label">服务中</div>
+        <div class="stat-value" id="techBusy">0</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><svg><use href="#i-star"/></svg></div>
+        <div class="stat-label">本月业绩王</div>
+        <div class="stat-value" id="topTech" style="font-size:18px;">—</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">美甲师团队</div>
+        <button class="btn btn-primary btn-sm" onclick="openTechModal()">
+          <svg><use href="#i-add"/></svg> 新增美甲师
+        </button>
+      </div>
+      <div class="tech-grid" id="techGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== 今日收入 ===== -->
+  <section class="page" id="page-income">
+    <div class="income-hero">
+      <div class="income-hero-label">
+        <svg><use href="#i-money"/></svg> 今日收入
+      </div>
+      <div class="income-hero-amount">¥<span id="todayIncome">0</span></div>
+      <div class="income-hero-trend" id="todayIncomeTrend">实时统计</div>
+      <div class="income-hero-bg"><svg><use href="#i-money"/></svg></div>
+    </div>
+
+    <div class="income-summary">
+      <div class="stat-card green">
+        <div class="stat-icon"><svg><use href="#i-wallet"/></svg></div>
+        <div class="stat-label">总收入（累计）</div>
+        <div class="stat-value">¥<span id="totalIncome">0</span></div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><svg><use href="#i-receipt"/></svg></div>
+        <div class="stat-label">今日订单数</div>
+        <div class="stat-value" id="todayOrders">0</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon"><svg><use href="#i-trend-up"/></svg></div>
+        <div class="stat-label">今日客单价</div>
+        <div class="stat-value">¥<span id="todayAvg">0</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">美甲师今日收入明细</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>美甲师</th>
+              <th>今日订单</th>
+              <th>今日收入</th>
+              <th>占比</th>
+              <th>进度</th>
+            </tr>
+          </thead>
+          <tbody id="incomeTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<nav class="bottom-nav" id="bottomNav">
+  <div class="bottom-nav-item active" data-page="members">
+    <svg><use href="#i-user"/></svg>会员
+  </div>
+  <div class="bottom-nav-item" data-page="consume">
+    <svg><use href="#i-card"/></svg>消费
+  </div>
+  <div class="bottom-nav-item" data-page="booking">
+    <svg><use href="#i-cal"/></svg>预约
+  </div>
+  <div class="bottom-nav-item" data-page="techs">
+    <svg><use href="#i-star"/></svg>美甲师
+  </div>
+  <div class="bottom-nav-item" data-page="income">
+    <svg><use href="#i-money"/></svg>收入
+  </div>
+</nav>
+
+<!-- 会员模态框 -->
+<div class="modal-mask" id="memberModal">
+  <div class="modal">
+    <div class="modal-title"><svg><use href="#i-user"/></svg> <span id="memberModalTitle">新增会员</span></div>
+    <input type="hidden" id="memberEditId">
+    <div class="form-group">
+      <label class="form-label">会员姓名 *</label>
+      <input type="text" class="form-input" id="mName" placeholder="请输入会员姓名">
+    </div>
+    <div class="form-group">
+      <label class="form-label">手机号 *</label>
+      <input type="text" class="form-input" id="mPhone" placeholder="请输入手机号">
+    </div>
+    <div class="form-group">
+      <label class="form-label">会员等级</label>
+      <select class="form-select" id="mLevel">
+        <option value="普通">普通会员</option>
+        <option value="银卡">银卡会员</option>
+        <option value="金卡">金卡会员</option>
+        <option value="VIP">VIP 会员</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">首次充值金额</label>
+      <input type="number" class="form-input" id="mRecharge" placeholder="0" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">备注</label>
+      <textarea class="form-textarea" id="mNote" placeholder="可选备注信息"></textarea>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('memberModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveMember()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 消费模态框 -->
+<div class="modal-mask" id="consumeModal">
+  <div class="modal">
+    <div class="modal-title"><svg><use href="#i-card"/></svg> <span id="consumeModalTitle">新增消费记录</span></div>
+    <input type="hidden" id="cEditId">
+    <div class="form-group">
+      <label class="form-label">客户姓名 *（可直接输入，无需先登记）</label>
+      <input type="text" class="form-input" id="cMemberInput" list="cMemberList" placeholder="输入姓名或从已登记会员中选择" autocomplete="off">
+      <datalist id="cMemberList"></datalist>
+    </div>
+    <div class="form-group">
+      <label class="form-label">项目明细 *（每项分别填金额，自动合计）</label>
+      <div class="item-list" id="cItemList">
+        <div class="item-row">
+          <span class="item-name">本甲</span>
+          <input type="number" class="item-amt" data-item="本甲" placeholder="0" min="0" oninput="updateItemTotal()">
+        </div>
+        <div class="item-row">
+          <span class="item-name">甲片</span>
+          <input type="number" class="item-amt" data-item="甲片" placeholder="0" min="0" oninput="updateItemTotal()">
+        </div>
+        <div class="item-row">
+          <span class="item-name">卸甲</span>
+          <input type="number" class="item-amt" data-item="卸甲" placeholder="0" min="0" oninput="updateItemTotal()">
+        </div>
+        <div class="item-row">
+          <span class="item-name">建构</span>
+          <input type="number" class="item-amt" data-item="建构" placeholder="0" min="0" oninput="updateItemTotal()">
+        </div>
+        <div class="item-row">
+          <span class="item-name">款式</span>
+          <select class="item-style" id="cItem">
+            <option>纯色美甲</option><option>法式美甲</option><option>渐变美甲</option>
+            <option>手绘款式</option><option>贴钻装饰</option><option>卸甲护理</option><option>足部美甲</option>
+          </select>
+          <input type="number" class="item-amt" data-item="款式" placeholder="0" min="0" oninput="updateItemTotal()">
+        </div>
+      </div>
+      <div class="item-hint">示例：本甲 150 / 建构 50 / 卸甲 30，款式按需填写</div>
+      <div class="item-total">
+        <span class="total-label">合计消费金额</span>
+        <span class="total-amt">¥<span id="cItemTotal">0</span></span>
+      </div>
+    </div>
+    <input type="hidden" id="cAmount" value="0">
+    <div class="form-group">
+      <label class="form-label">支付明细 *（每个渠道分别填金额，或切换到手动输入）</label>
+      <div class="pay-header">
+        <button class="btn btn-ghost btn-sm" onclick="addPayRow()">＋ 添加支付渠道</button>
+        <button class="btn btn-ghost btn-sm" onclick="autoFillPay()">自动按总额</button>
+        <button class="btn btn-ghost btn-sm" onclick="togglePayMode()"><span id="payModeText">切换为手动输入</span></button>
+      </div>
+      <div id="payList" class="pay-list"></div>
+      <div id="payManualWrap" style="display:none;">
+        <input type="text" class="form-input" id="cPayManual" placeholder="例如：微信50 美团120 现金130">
+      </div>
+      <div class="pay-summary">
+        <span>渠道合计 <strong id="paySum" style="color:#e84c7d;">¥0</strong></span>
+        <span class="pay-status" id="payStatus"></span>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">服务美甲师</label>
+      <select class="form-select" id="cTech"></select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('consumeModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveConsume()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 预约模态框 -->
+<div class="modal-mask" id="bookingModal">
+  <div class="modal">
+    <div class="modal-title"><svg><use href="#i-cal"/></svg> 新增预约</div>
+    <input type="hidden" id="bEditId">
+    <div class="form-group">
+      <label class="form-label">客户姓名 *（可直接输入，无需先登记）</label>
+      <input type="text" class="form-input" id="bMemberInput" list="bMemberList" placeholder="输入姓名或从已登记会员中选择" autocomplete="off">
+      <datalist id="bMemberList"></datalist>
+    </div>
+    <div class="form-group">
+      <label class="form-label">前置条件 *（本甲/甲片等，可多选）</label>
+      <div class="checkbox-grid" id="bConditionGrid">
+        <label class="check-pill"><input type="checkbox" value="本甲"> 本甲</label>
+        <label class="check-pill"><input type="checkbox" value="甲片"> 甲片</label>
+        <label class="check-pill"><input type="checkbox" value="卸甲"> 卸甲</label>
+        <label class="check-pill"><input type="checkbox" value="建构"> 建构</label>
+      </div>
+      <div class="selected-tags" id="bConditionTags" style="display:none;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">款式 *</label>
+      <select class="form-select" id="bItem">
+        <option>纯色美甲</option><option>法式美甲</option><option>渐变美甲</option>
+        <option>手绘款式</option><option>贴钻装饰</option><option>卸甲护理</option><option>足部美甲</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">服务美甲师</label>
+      <select class="form-select" id="bTech"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">预约日期时间 *</label>
+      <input type="datetime-local" class="form-input" id="bTime">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('bookingModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveBooking()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 美甲师模态框 -->
+<div class="modal-mask" id="techModal">
+  <div class="modal">
+    <div class="modal-title"><svg><use href="#i-star"/></svg> <span id="techModalTitle">新增美甲师</span></div>
+    <input type="hidden" id="techEditId">
+    <div class="form-group">
+      <label class="form-label">姓名 *</label>
+      <input type="text" class="form-input" id="tName" placeholder="请输入美甲师姓名">
+    </div>
+    <div class="form-group">
+      <label class="form-label">擅长项目</label>
+      <input type="text" class="form-input" id="tSkill" placeholder="如：法式、手绘、贴钻">
+    </div>
+    <div class="form-group">
+      <label class="form-label">等级</label>
+      <select class="form-select" id="tLevel">
+        <option>初级美甲师</option><option>中级美甲师</option><option>高级美甲师</option><option>首席美甲师</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">状态</label>
+      <select class="form-select" id="tStatus">
+        <option value="online">在线</option><option value="busy">服务中</option><option value="offline">离线</option>
+      </select>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('techModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveTech()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const COLORS = ['#ff6b9d','#ff8fab','#ffa07a','#f66ec7','#f9c80e','#f86624','#ea3546','#662e9b','#43bccd','#5f2eea'];
+
+// 版本号：升级此号会清空旧数据重新开始（用于切换演示数据↔空白状态）
+const DATA_VERSION = 'empty-v1';
+
+// 自动清空旧版本数据
+if (localStorage.getItem('yeye_data_version') !== DATA_VERSION) {
+  localStorage.removeItem('yeye_members');
+  localStorage.removeItem('yeye_consumes');
+  localStorage.removeItem('yeye_bookings');
+  localStorage.removeItem('yeye_techs');
+  localStorage.setItem('yeye_data_version', DATA_VERSION);
+}
+
+// 全部从空开始，由用户自行录入
+let members = JSON.parse(localStorage.getItem('yeye_members') || '[]');
+let consumes = JSON.parse(localStorage.getItem('yeye_consumes') || '[]');
+let bookings = JSON.parse(localStorage.getItem('yeye_bookings') || '[]');
+let techs = JSON.parse(localStorage.getItem('yeye_techs') || '[]');
+
+function saveData() {
+  localStorage.setItem('yeye_members', JSON.stringify(members));
+  localStorage.setItem('yeye_consumes', JSON.stringify(consumes));
+  localStorage.setItem('yeye_bookings', JSON.stringify(bookings));
+  localStorage.setItem('yeye_techs', JSON.stringify(techs));
+}
+
+function $(id) { return document.getElementById(id); }
+function fmt(n) { return Number(n||0).toLocaleString('zh-CN'); }
+function colorOf(name) { let h=0; for (const c of name) h+=c.charCodeAt(0); return COLORS[h % COLORS.length]; }
+function initial(name) { return name ? name.charAt(0) : '?'; }
+function toast(msg) { const t=$('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800); }
+function openModal(id) { $(id).classList.add('show'); }
+function closeModal(id) { $(id).classList.remove('show'); }
+function levelTag(level) { const map={'VIP':'pink','金卡':'orange','银卡':'blue','普通':'gray'}; return `<span class="tag ${map[level]||'gray'}">${level}</span>`; }
+function techName(id) { const t=techs.find(x=>x.id==id); return t?t.name:'—'; }
+// 兼容：memberId 可能是数字（已登记会员）或字符串（直接输入的姓名）
+function memberName(id) {
+  if (typeof id === 'string' && isNaN(id)) return id; // 直接是姓名字符串
+  const m=members.find(x=>x.id==id); return m?m.name:(id||'散客');
+}
+function memberIdOf(val) {
+  if (!val) return '';
+  const trimmed = String(val).trim();
+  const m = members.find(x=>x.name===trimmed);
+  return m ? m.id : trimmed; // 找到已登记会员返回 id，否则返回姓名字符串
+}
+
+const PAGE_INFO = {
+  members:{title:'会员登记',sub:'管理你的会员信息与充值记录'},
+  consume:{title:'会员消费记录',sub:'查看与登记会员消费明细'},
+  booking:{title:'预约登记',sub:'管理客户预约时间表'},
+  techs:{title:'美甲师',sub:'管理美甲师团队与排班'},
+  income:{title:'今日收入',sub:'实时掌握店铺收入数据'},
+};
+
+function switchPage(page) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $('page-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  document.querySelectorAll('.bottom-nav-item').forEach(n=>n.classList.toggle('active', n.dataset.page===page));
+  $('pageTitle').textContent=PAGE_INFO[page].title;
+  $('pageSubtitle').textContent=PAGE_INFO[page].sub;
+  if(page==='members') renderMembers();
+  if(page==='consume') renderConsume();
+  if(page==='booking') renderBooking();
+  if(page==='techs') renderTechs();
+  if(page==='income') renderIncome();
+  $('sidebar').classList.remove('open');
+  $('overlay').classList.remove('show');
+}
+
+document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(n => n.addEventListener('click', ()=>switchPage(n.dataset.page)));
+
+// 全局刷新所有页面数据（保证预约/消费/收入/美甲师/会员数据同步）
+function renderAll(){
+  renderMembers();
+  renderConsume();
+  renderBooking();
+  renderTechs();
+  renderIncome();
+}
+function toggleSidebar() { $('sidebar').classList.toggle('open'); $('overlay').classList.toggle('show'); }
+
+let selectedMemberIds = [];
+function renderMembers() {
+  const kw=$('memberSearch').value.trim().toLowerCase();
+  const list=members.filter(m=>{ if(!kw) return true; return m.name.toLowerCase().includes(kw)||m.phone.includes(kw)||('no'+m.id).includes(kw.replace(/^no/i,'')); });
+  $('memberCount').textContent=fmt(members.length);
+  const tr=members.reduce((s,m)=>s+(+m.totalRecharge||0),0);
+  $('totalRecharge').textContent=fmt(tr);
+  $('rechargeCount').textContent=members.filter(m=>(+m.totalRecharge||0)>0).length;
+  $('totalBalance').textContent=fmt(members.reduce((s,m)=>s+(+m.balance||0),0));
+  const vip=members.filter(m=>m.level==='VIP').length;
+  $('vipCount').textContent=vip;
+  $('vipRate').textContent=members.length?Math.round(vip/members.length*100)+'%':'0%';
+  const ym=new Date().toISOString().slice(0,7);
+  $('newMembersMonth').textContent=members.filter(m=>m.date&&m.date.startsWith(ym)).length;
+  const tbody=$('memberTbody');
+  if(list.length===0){ tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无匹配的会员</div></div></td></tr>`; }
+  else { tbody.innerHTML=list.map(m=>`<tr>
+    <td><input type="checkbox" class="member-cb" value="${m.id}" ${selectedMemberIds.includes(m.id)?'checked':''} onchange="toggleSelectMember(${m.id}, this.checked)"></td>
+    <td><span class="member-avatar" style="background:${colorOf(m.name)}">${initial(m.name)}</span>${m.name}</td>
+    <td>${m.phone}</td><td>No${String(m.id).padStart(4,'0')}</td><td>${levelTag(m.level)}</td>
+    <td class="fw-700 text-pink">¥${fmt(m.balance)}</td><td>¥${fmt(m.totalRecharge)}</td>
+    <td class="text-light">${m.date}</td>
+    <td><div class="row-actions">
+      <button class="btn btn-ghost btn-sm" onclick="rechargeMember(${m.id})">充值</button>
+      <button class="btn btn-ghost btn-sm" onclick="editMember(${m.id})"><svg><use href="#i-edit"/></svg></button>
+      <button class="btn btn-danger btn-sm" onclick="deleteMember(${m.id})"><svg><use href="#i-delete"/></svg></button>
+    </div></td></tr>`).join(''); }
+  $('btnDeleteSelected').style.display=selectedMemberIds.length?'inline-flex':'none';
+}
+function toggleSelectAll(cb){ selectedMemberIds=cb.checked?members.map(m=>m.id):[]; renderMembers(); }
+function toggleSelectMember(id,checked){ if(checked){if(!selectedMemberIds.includes(id))selectedMemberIds.push(id);}else{selectedMemberIds=selectedMemberIds.filter(x=>x!==id);} $('btnDeleteSelected').style.display=selectedMemberIds.length?'inline-flex':'none'; }
+function openMemberModal(){ $('memberModalTitle').textContent='新增会员'; $('memberEditId').value=''; $('mName').value='';$('mPhone').value='';$('mLevel').value='普通';$('mRecharge').value='';$('mNote').value=''; openModal('memberModal'); }
+function editMember(id){ const m=members.find(x=>x.id==id); if(!m) return; $('memberModalTitle').textContent='编辑会员'; $('memberEditId').value=id; $('mName').value=m.name;$('mPhone').value=m.phone;$('mLevel').value=m.level;$('mRecharge').value='';$('mNote').value=m.note||''; openModal('memberModal'); }
+function saveMember(){ const name=$('mName').value.trim(),phone=$('mPhone').value.trim(); if(!name||!phone){toast('请填写姓名和手机号');return;} const editId=$('memberEditId').value; const recharge=+$('mRecharge').value||0;
+  if(editId){ const m=members.find(x=>x.id==editId); m.name=name;m.phone=phone;m.level=$('mLevel').value;m.note=$('mNote').value; if(recharge>0){m.balance+=recharge;m.totalRecharge=(+m.totalRecharge||0)+recharge;} toast('会员已更新'); }
+  else { const id=Math.max(0,...members.map(m=>m.id))+1; members.push({id,name,phone,level:$('mLevel').value,balance:recharge,totalRecharge:recharge,note:$('mNote').value,date:new Date().toISOString().slice(0,10)}); toast('已新增会员 '+name); }
+  saveData();renderAll();closeModal('memberModal'); }
+function rechargeMember(id){ const m=members.find(x=>x.id==id); if(!m) return; const amt=prompt('请输入充值金额（元）：','500'); if(amt===null) return; const n=+amt; if(!n||n<=0){toast('金额无效');return;} m.balance+=n;m.totalRecharge=(+m.totalRecharge||0)+n; saveData();renderAll(); toast(`${m.name} 充值 ¥${fmt(n)} 成功`); }
+function deleteMember(id){ if(!confirm('确定删除该会员吗？')) return; members=members.filter(m=>m.id!==id); selectedMemberIds=selectedMemberIds.filter(x=>x!==id); saveData();renderAll(); toast('已删除'); }
+function deleteMembers(){ if(!selectedMemberIds.length) return; if(!confirm(`确定删除选中的 ${selectedMemberIds.length} 个会员吗？`)) return; members=members.filter(m=>!selectedMemberIds.includes(m.id)); selectedMemberIds=[]; saveData();renderAll(); toast('已批量删除'); }
+function deleteAllMembers(){ if(!confirm('确定清空所有会员任务吗？此操作不可恢复！')) return; if(!confirm('⚠️ 再次确认：将删除全部 '+members.length+' 个会员，是否继续？')) return; members=[];selectedMemberIds=[]; saveData();renderAll(); toast('已清空所有会员'); }
+
+function payLabel(pay){
+  if (Array.isArray(pay)) {
+    return pay.filter(p=>p.amount>0).map(p=>`${p.method}¥${p.amount}`).join(' · ');
+  }
+  return pay || '—';
+}
+function hasCardPay(pay){
+  if (Array.isArray(pay)) return pay.some(p=>p.method==='会员卡');
+  return typeof pay === 'string' && pay.includes('会员卡');
+}
+function cardPayAmount(pay){
+  if (Array.isArray(pay)) return (pay.find(p=>p.method==='会员卡')||{}).amount || 0;
+  return 0;
+}
+
+// ===== 月份分组工具 =====
+const CN_MONTHS = ['一','二','三','四','五','六','七','八','九','十','十一','十二'];
+// 从时间字符串提取 YYYY-MM（兼容 "2026-07-30 14:30" 与 "2026-07-30T14:30"）
+function monthKey(t){
+  if(!t) return '';
+  const m = String(t).match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}` : '';
+}
+// "2026-07" -> "七月"（同年省略年份，跨年带年份）
+function monthLabel(key){
+  if(!key) return '未知时间';
+  const [y, mm] = key.split('-');
+  const mon = CN_MONTHS[(+mm)-1] || mm;
+  const curY = String(new Date().getFullYear());
+  return y === curY ? `${mon}月` : `${y}年${mon}月`;
+}
+// 把列表按月份分组（倒序，最新月份在前），返回 [{key, label, items:[...]}]
+function groupByMonth(list, timeGetter){
+  const map = new Map();
+  list.forEach(it => {
+    const k = monthKey(timeGetter(it)) || 'unknown';
+    if(!map.has(k)) map.set(k, []);
+    map.get(k).push(it);
+  });
+  return [...map.entries()]
+    .sort((a,b) => b[0].localeCompare(a[0]))
+    .map(([key, items]) => ({ key, label: monthLabel(key), items }));
+}
+// 把 "2026-07-30 14:30" 或 "2026-07-30T14:30" 精简为 "07-30 14:30"
+function shortTime(t){
+  if(!t) return '';
+  const m = String(t).match(/(\d{2}-\d{2})[ T](\d{2}:\d{2})/);
+  return m ? `${m[1]} ${m[2]}` : String(t).replace('T',' ');
+}
+// 日期筛选：判断某条记录的时间是否命中筛选条件
+// type: 'all' | 'today' | 'month' | 'day'；dateStr 为指定日期时的 'YYYY-MM-DD'
+function matchDateFilter(time, type, dateStr){
+  if(!type || type==='all') return true;
+  const k = monthKey(time); // YYYY-MM
+  if(!k) return false;
+  if(type==='today'){
+    const today = new Date().toISOString().slice(0,10);
+    return time.startsWith(today);
+  }
+  if(type==='month'){
+    const cur = new Date().toISOString().slice(0,7);
+    return k === cur;
+  }
+  if(type==='day'){
+    if(!dateStr) return true;
+    // 把 "2026-07-30 14:30" / "2026-07-30T14:30" 与 "2026-07-30" 比较
+    return String(time).slice(0,10) === dateStr;
+  }
+  return true;
+}
+// 消费日期筛选器交互
+function onConsumeDateType(){
+  const t = $('consumeDateType').value;
+  $('consumeDate').style.display = (t==='day') ? '' : 'none';
+  $('consumeClearDate').style.display = (t!=='all') ? '' : 'none';
+  if(t!=='day') $('consumeDate').value='';
+  renderConsume();
+}
+function clearConsumeDate(){
+  $('consumeDateType').value='all';
+  $('consumeDate').value='';
+  $('consumeDate').style.display='none';
+  $('consumeClearDate').style.display='none';
+  renderConsume();
+}
+// 预约日期筛选器交互
+function onBookingDateType(){
+  const t = $('bookingDateType').value;
+  $('bookingDate').style.display = (t==='day') ? '' : 'none';
+  $('bookingClearDate').style.display = (t!=='all') ? '' : 'none';
+  if(t!=='day') $('bookingDate').value='';
+  renderBooking();
+}
+function clearBookingDate(){
+  $('bookingDateType').value='all';
+  $('bookingDate').value='';
+  $('bookingDate').style.display='none';
+  $('bookingClearDate').style.display='none';
+  renderBooking();
+}
+
+function renderConsume(){
+  const kw=$('consumeSearch').value.trim().toLowerCase();
+  const cdt=$('consumeDateType').value, cdate=$('consumeDate').value;
+  const list=consumes.filter(c=>{ if(!kw) return true; return memberName(c.memberId).toLowerCase().includes(kw)||techName(c.techId).toLowerCase().includes(kw)||c.item.toLowerCase().includes(kw); })
+    .filter(c=>matchDateFilter(c.time, cdt, cdate))
+    .slice().reverse();
+  $('consumeTotalCount').textContent=fmt(consumes.length);
+  $('consumeTotalAmount').textContent=fmt(consumes.reduce((s,c)=>s+(+c.amount||0),0));
+  const today=new Date().toISOString().slice(0,10);
+  const tl=consumes.filter(c=>c.time&&c.time.startsWith(today));
+  $('consumeToday').textContent=fmt(tl.reduce((s,c)=>s+(+c.amount||0),0));
+  $('avgTicket').textContent=consumes.length?fmt(Math.round(consumes.reduce((s,c)=>s+(+c.amount||0),0)/consumes.length)):0;
+  const tbody=$('consumeTbody');
+  if(list.length===0){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无消费记录</div></div></td></tr>`; }
+  else {
+    const groups = groupByMonth(list, c=>c.time);
+    tbody.innerHTML = groups.map(g => {
+      const header = `<tr class="month-divider"><td colspan="7"><div class="month-group-header"><span>${g.label}</span><span class="month-count">${g.items.length} 笔</span></div></td></tr>`;
+      const rows = g.items.map(c=>{
+        const payTxt = payLabel(c.pay);
+        const itemHtml = consumeItemHtml(c);
+        return `<tr>
+        <td><span class="member-avatar" style="background:${colorOf(memberName(c.memberId))}">${initial(memberName(c.memberId))}</span>${memberName(c.memberId)}</td>
+        <td>${itemHtml}</td><td class="fw-700 text-pink">¥${fmt(c.amount)}</td><td><span class="tag blue" title="${payTxt}">${payTxt}</span></td><td>${techName(c.techId)}</td><td class="text-light">${shortTime(c.time)}</td>
+        <td><div class="row-actions">
+          <button class="btn btn-ghost btn-sm" onclick="editConsume(${c.id})"><svg><use href="#i-edit"/></svg></button>
+          <button class="btn btn-danger btn-sm" onclick="deleteConsume(${c.id})"><svg><use href="#i-delete"/></svg></button>
+        </div></td></tr>`;
+      }).join('');
+      return header + rows;
+    }).join('');
+  }
+}
+function fillConsumeMemberList(){
+  $('cMemberList').innerHTML = members.map(m=>`<option value="${m.name}">`).join('');
+}
+// 列表"项目"列：优先展示分项明细（本甲150 建构50 ...），否则降级为 item 文本
+function consumeItemHtml(c){
+  if (Array.isArray(c.itemDetail) && c.itemDetail.length) {
+    const parts = c.itemDetail.filter(d => d.amount > 0).map(d => {
+      const label = d.name === '款式' ? `${d.style||'款式'}` : d.name;
+      return `<span class="item-chip">${label}<em>¥${d.amount}</em></span>`;
+    });
+    if (parts.length) return `<div class="item-chips">${parts.join('')}</div>`;
+  }
+  return c.item || '—';
+}
+
+// 支付渠道：可选 + 输入金额 + 删除
+const PAY_METHODS = ['会员卡','微信','支付宝','美团','大众点评','抖音','现金','其他'];
+let payManualMode = false;
+
+function renderPayList(detail){
+  // detail: [{method, amount}] 或 string
+  const list = $('payList');
+  list.innerHTML = '';
+  if (payManualMode) {
+    $('payList').style.display = 'none';
+    $('payManualWrap').style.display = '';
+    if (typeof detail === 'string') $('cPayManual').value = detail;
+    return;
+  }
+  $('payList').style.display = '';
+  $('payManualWrap').style.display = 'none';
+  const rows = (Array.isArray(detail) && detail.length) ? detail : [{method:'微信', amount:''}];
+  rows.forEach(row => addPayRow(row));
+}
+
+function addPayRow(row){
+  row = row || {method:'微信', amount:''};
+  const list = $('payList');
+  const div = document.createElement('div');
+  div.className = 'pay-row';
+  const opts = PAY_METHODS.map(m => `<option value="${m}" ${m===row.method?'selected':''}>${m}</option>`).join('');
+  div.innerHTML = `
+    <select class="pay-method">${opts}</select>
+    <input type="number" class="pay-amount" placeholder="0" min="0" value="${row.amount||''}">
+    <button type="button" class="pay-del" title="删除">✕</button>
+  `;
+  list.appendChild(div);
+  // 联动
+  div.querySelector('.pay-amount').addEventListener('input', updatePaySum);
+  div.querySelector('.pay-del').addEventListener('click', () => { div.remove(); updatePaySum(); });
+}
+
+function autoFillPay(){
+  // 把当前总金额填入第一个渠道
+  const total = +$('cAmount').value || 0;
+  const list = $('payList');
+  list.innerHTML = '';
+  if (total > 0) {
+    addPayRow({method:'微信', amount:total});
+  } else {
+    addPayRow({method:'微信', amount:''});
+  }
+  updatePaySum();
+}
+
+function togglePayMode(){
+  payManualMode = !payManualMode;
+  $('payModeText').textContent = payManualMode ? '切换为分渠道' : '切换为手动输入';
+  if (payManualMode) {
+    const detail = collectPayDetail();
+    if (Array.isArray(detail) && detail.length) {
+      $('cPayManual').value = detail.filter(r=>r.amount>0).map(r=>`${r.method}${r.amount}`).join(' ');
+    } else {
+      $('cPayManual').value = '';
+    }
+  } else {
+    // 把手动文本解析成渠道
+    const text = $('cPayManual').value.trim();
+    const parsed = parsePayText(text);
+    renderPayList(parsed.length ? parsed : [{method:'微信', amount:''}]);
+  }
+  updatePaySum();
+}
+
+function parsePayText(text){
+  // 解析 "微信50 美团120 现金130"
+  const result = [];
+  const re = /([^\s0-9]+?)(\d+(?:\.\d+)?)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    const method = m[1];
+    const amount = parseFloat(m[2]);
+    if (method && amount > 0) result.push({method, amount});
+  }
+  return result;
+}
+
+function updatePaySum(){
+  if (payManualMode) {
+    const text = $('cPayManual').value.trim();
+    const parsed = parsePayText(text);
+    const sum = parsed.reduce((s,r)=>s+r.amount, 0);
+    const target = +$('cAmount').value || 0;
+    $('paySum').textContent = '¥' + sum.toLocaleString();
+    setPayStatus(sum, target);
+    return;
+  }
+  const rows = [...document.querySelectorAll('#payList .pay-row')];
+  let sum = 0;
+  rows.forEach(r => { sum += +(r.querySelector('.pay-amount').value) || 0; });
+  const target = +$('cAmount').value || 0;
+  $('paySum').textContent = '¥' + sum.toLocaleString();
+  setPayStatus(sum, target);
+}
+
+function setPayStatus(sum, target){
+  const st = $('payStatus');
+  st.className = 'pay-status';
+  if (target <= 0) { st.textContent = ''; return; }
+  if (sum === 0) { st.classList.add('empty'); st.textContent = '（请填写支付渠道金额）'; return; }
+  if (sum === target) { st.classList.add('match'); st.textContent = '✓ 已匹配'; return; }
+  if (sum < target) { st.classList.add('mismatch'); st.textContent = `还差 ¥${target - sum}`; return; }
+  st.classList.add('mismatch'); st.textContent = `超出 ¥${sum - target}`;
+}
+
+function syncPayTarget(){ updatePaySum(); }
+
+function collectPayDetail(){
+  if (payManualMode) {
+    const text = $('cPayManual').value.trim();
+    const parsed = parsePayText(text);
+    if (parsed.length) return parsed;
+    return text; // 解析不出时直接保存原文
+  }
+  const rows = [...document.querySelectorAll('#payList .pay-row')];
+  const list = rows.map(r => ({
+    method: r.querySelector('.pay-method').value,
+    amount: +(r.querySelector('.pay-amount').value) || 0
+  })).filter(r => r.amount > 0);
+  return list;
+}
+
+// ===== 项目分项金额（消费弹窗）=====
+// 收集所有填了金额的分项：[{name, amount}]，款式行带 style
+function collectItemDetail(){
+  const detail = [];
+  document.querySelectorAll('#cItemList .item-row').forEach(row => {
+    const name = row.querySelector('.item-name').textContent.trim();
+    const amt = +(row.querySelector('.item-amt').value) || 0;
+    if (name === '款式') {
+      const style = row.querySelector('.item-style').value;
+      detail.push({ name:'款式', style, amount: amt });
+    } else if (amt > 0) {
+      detail.push({ name, amount: amt });
+    }
+  });
+  return detail;
+}
+function updateItemTotal(){
+  const detail = collectItemDetail();
+  const total = detail.reduce((s,d)=>s+(+d.amount||0), 0);
+  $('cItemTotal').textContent = total.toLocaleString();
+  $('cAmount').value = total;
+  updatePaySum();
+}
+function clearItemDetail(){
+  document.querySelectorAll('#cItemList .item-amt').forEach(i => i.value='');
+  $('cItem').selectedIndex = 0;
+  updateItemTotal();
+}
+// 编辑时回填：detail 为 [{name, amount, style?}]
+function fillItemDetail(detail){
+  clearItemDetail();
+  if (!Array.isArray(detail)) return;
+  detail.forEach(d => {
+    if (d.name === '款式') {
+      const row = [...document.querySelectorAll('#cItemList .item-row')].find(r => r.querySelector('.item-name').textContent.trim() === '款式');
+      if (row) {
+        if (d.style) {
+          const opts = [...row.querySelector('.item-style').options];
+          const idx = opts.findIndex(o => o.text === d.style);
+          if (idx >= 0) row.querySelector('.item-style').selectedIndex = idx;
+        }
+        row.querySelector('.item-amt').value = d.amount || '';
+      }
+    } else {
+      const row = [...document.querySelectorAll('#cItemList .item-row')].find(r => r.querySelector('.item-name').textContent.trim() === d.name);
+      if (row) row.querySelector('.item-amt').value = d.amount || '';
+    }
+  });
+  updateItemTotal();
+}
+// 由分项明细构造显示文本：本甲+建构 · 法式美甲（仅含有金额的项）
+function buildItemText(detail){
+  const style = detail.find(d => d.name === '款式');
+  const conds = detail.filter(d => d.name !== '款式').map(d => d.name).filter(Boolean);
+  const styleName = style ? style.style : '';
+  return conds.length ? (conds.join('+') + ' · ' + styleName) : styleName;
+}
+function openConsumeModal(){
+  if(techs.length===0){toast('请先添加美甲师');return;}
+  fillConsumeMemberList();
+  $('cTech').innerHTML=techs.map(t=>`<option value="${t.id}">${t.name} - ${t.level}</option>`).join('');
+  $('consumeModalTitle').textContent='新增消费记录';
+  $('cEditId').value='';
+  $('cMemberInput').value=''; $('cTech').selectedIndex=0;
+  clearItemDetail();
+  payManualMode=false;
+  $('payModeText').textContent='切换为手动输入';
+  $('cPayManual').value='';
+  renderPayList([{method:'微信', amount:''}]);
+  updatePaySum();
+  openModal('consumeModal');
+}
+function editConsume(id){
+  const c=consumes.find(x=>x.id==id); if(!c) return;
+  if(techs.length===0){toast('请先添加美甲师');return;}
+  fillConsumeMemberList();
+  $('cTech').innerHTML=techs.map(t=>`<option value="${t.id}">${t.name} - ${t.level}</option>`).join('');
+  $('consumeModalTitle').textContent='编辑消费记录';
+  $('cEditId').value=id;
+  $('cMemberInput').value=memberName(c.memberId);
+  // 回填分项明细：优先用 itemDetail，否则从 item 文本解析兼容旧数据
+  let detail = Array.isArray(c.itemDetail) ? c.itemDetail : null;
+  if (!detail) {
+    const parsed = parseItemText(c.item);
+    detail = parsed.conds.map(n => ({name:n, amount:0}));
+    if (parsed.style) detail.push({name:'款式', style:parsed.style, amount:0});
+  }
+  // 旧数据没有分项金额，把 c.amount 平均分到已选条件上（或全部归到款式）
+  if (detail.length && !detail.some(d => d.amount > 0)) {
+    const conds = detail.filter(d => d.name !== '款式');
+    if (conds.length === 1) conds[0].amount = c.amount;
+    else if (detail.find(d=>d.name==='款式')) detail.find(d=>d.name==='款式').amount = c.amount;
+    else if (conds.length) conds[0].amount = c.amount;
+  }
+  fillItemDetail(detail);
+  const techOpts=[...$('cTech').options]; const tIdx=techOpts.findIndex(o=>o.value==c.techId); if(tIdx>=0) $('cTech').selectedIndex=tIdx;
+  // 兼容旧的 pay(string) 和新的 pay(Array)
+  payManualMode = false;
+  $('payModeText').textContent='切换为手动输入';
+  $('cPayManual').value='';
+  if (Array.isArray(c.pay)) {
+    renderPayList(c.pay.length ? c.pay : [{method:'微信', amount:''}]);
+  } else {
+    const s = String(c.pay||'');
+    if (/[0-9]/.test(s)) {
+      payManualMode = true;
+      $('payModeText').textContent='切换为分渠道';
+      $('cPayManual').value = s;
+      renderPayList(s);
+    } else if (s.includes('+')) {
+      const methods = s.split('+').filter(Boolean);
+      renderPayList(methods.map(m=>({method:m, amount:''})));
+    } else {
+      renderPayList([{method:s||'微信', amount:''}]);
+    }
+  }
+  updatePaySum();
+  openModal('consumeModal');
+}
+function parseItemText(t){
+  // 把 "本甲+甲片 · 纯色美甲" 拆分成 {conds:[..], style:'纯色美甲'}
+  // 兼容旧的纯款式字符串 '纯色美甲'
+  if (!t) return {conds:[], style:''};
+  const idx = t.indexOf('·');
+  if (idx < 0) return {conds:[], style:t.trim()};
+  const left = t.slice(0, idx).trim();
+  const right = t.slice(idx+1).trim();
+  return {conds:left ? left.split('+').map(s=>s.trim()).filter(Boolean) : [], style:right};
+}
+function saveConsume(){
+  const nameInput=$('cMemberInput').value.trim();
+  if(!nameInput){toast('请输入客户姓名');return;}
+  const memberId=memberIdOf(nameInput);
+  const itemDetail = collectItemDetail();
+  const amount = itemDetail.reduce((s,d)=>s+(+d.amount||0), 0);
+  if(!amount||amount<=0){toast('请至少为一项填写金额');return;}
+  const hasNonStyle = itemDetail.some(d => d.name !== '款式' && d.amount > 0);
+  const styleRow = itemDetail.find(d => d.name === '款式');
+  if(!hasNonStyle && !(styleRow && styleRow.amount > 0)){toast('请至少为一项填写金额');return;}
+  $('cAmount').value = amount;
+  const item = buildItemText(itemDetail);
+  // 校验支付明细
+  const payDetail = collectPayDetail();
+  if (Array.isArray(payDetail)) {
+    const sum = payDetail.reduce((s,r)=>s+r.amount, 0);
+    if (sum <= 0){toast('请填写支付渠道金额');return;}
+    if (sum !== amount){toast(`渠道合计 ¥${sum} 与消费金额 ¥${amount} 不一致`);return;}
+  } else {
+    const parsed = parsePayText(payDetail);
+    if (parsed.length === 0){toast('请填写支付明细');return;}
+    const sum = parsed.reduce((s,r)=>s+r.amount, 0);
+    if (sum !== amount){toast(`渠道合计 ¥${sum} 与消费金额 ¥${amount} 不一致`);return;}
+  }
+  const techId=+$('cTech').value;
+  const m=members.find(x=>x.id==memberId);
+  const editId=$('cEditId').value;
+
+  if(editId){
+    const old=consumes.find(x=>x.id==editId); if(!old) return;
+    const oldMember=members.find(x=>x.id==old.memberId);
+    if(oldMember && old.pay==='会员卡') oldMember.balance += old.amount;
+    const oldTech=techs.find(x=>x.id==old.techId);
+    if(oldTech){ oldTech.todayOrders=Math.max(0,(oldTech.todayOrders||0)-1); oldTech.todayIncome=Math.max(0,(oldTech.todayIncome||0)-old.amount); oldTech.monthIncome=Math.max(0,(oldTech.monthIncome||0)-old.amount); }
+    if(m && payDetail==='会员卡' && m.balance<amount){ toast('会员余额不足');
+      if(oldMember && old.pay==='会员卡') oldMember.balance -= old.amount;
+      if(oldTech){ oldTech.todayOrders+=1; oldTech.todayIncome+=old.amount; oldTech.monthIncome+=old.amount; }
+      return;
+    }
+    old.memberId=memberId; old.item=item; old.amount=amount; old.pay=payDetail; old.techId=techId; old.itemDetail=itemDetail;
+    if(m && Array.isArray(payDetail) && payDetail.some(p=>p.method==='会员卡')) {
+      const cardAmt = payDetail.find(p=>p.method==='会员卡')?.amount || 0;
+      m.balance -= cardAmt;
+    } else if (m && typeof payDetail === 'string' && payDetail.includes('会员卡')) {
+      m.balance -= amount;
+    }
+    const t=techs.find(x=>x.id==techId);
+    if(t){ t.todayOrders=(t.todayOrders||0)+1; t.todayIncome=(t.todayIncome||0)+amount; t.monthIncome=(t.monthIncome||0)+amount; }
+    toast('消费记录已更新');
+  } else {
+    if(Array.isArray(payDetail) && payDetail.some(p=>p.method==='会员卡')) {
+      const cardAmt = payDetail.find(p=>p.method==='会员卡')?.amount || 0;
+      const cm = members.find(x=>x.id==memberId);
+      if (cm && cm.balance < cardAmt){toast('会员卡余额不足');return;}
+    }
+    const id=Math.max(0,...consumes.map(c=>c.id))+1;
+    const now=new Date();
+    const time=now.toISOString().slice(0,10)+' '+now.toTimeString().slice(0,5);
+    consumes.push({id,memberId,item,amount,pay:payDetail,techId,time,itemDetail});
+    if(Array.isArray(payDetail) && payDetail.some(p=>p.method==='会员卡')) {
+      const cardAmt = payDetail.find(p=>p.method==='会员卡')?.amount || 0;
+      const cm = members.find(x=>x.id==memberId);
+      if (cm) cm.balance -= cardAmt;
+    } else if (typeof payDetail === 'string' && payDetail.includes('会员卡') && m) {
+      m.balance -= amount;
+    }
+    const t=techs.find(x=>x.id==techId);
+    if(t){ t.todayOrders=(t.todayOrders||0)+1; t.todayIncome=(t.todayIncome||0)+amount; t.monthIncome=(t.monthIncome||0)+amount; }
+    toast('消费记录已添加');
+  }
+  saveData();renderAll();closeModal('consumeModal');
+}
+function deleteConsume(id){
+  if(!confirm('确定删除该消费记录吗？')) return;
+  const c=consumes.find(x=>x.id==id); if(!c) return;
+  // 回滚会员卡扣款（按 pay 里的会员卡金额）
+  const m=members.find(x=>x.id==c.memberId);
+  if(m){
+    const card = cardPayAmount(c.pay);
+    if (card > 0) m.balance += card;
+    else if (hasCardPay(c.pay)) m.balance += c.amount; // 老式字符串格式的兜底
+  }
+  const t=techs.find(x=>x.id==c.techId);
+  if(t){ t.todayOrders=Math.max(0,(t.todayOrders||0)-1); t.todayIncome=Math.max(0,(t.todayIncome||0)-c.amount); t.monthIncome=Math.max(0,(t.monthIncome||0)-c.amount); }
+  consumes=consumes.filter(x=>x.id!==id);
+  saveData();renderAll();
+  toast('已删除');
+}
+
+function renderBooking(){
+  const kw=$('bookingSearch').value.trim().toLowerCase();
+  const bdt=$('bookingDateType').value, bdate=$('bookingDate').value;
+  const list=bookings.filter(b=>{ if(!kw) return true; return memberName(b.memberId).toLowerCase().includes(kw)||techName(b.techId).toLowerCase().includes(kw)||b.item.toLowerCase().includes(kw); })
+    .filter(b=>matchDateFilter(b.time, bdt, bdate))
+    .slice().reverse();
+  const today=new Date().toISOString().slice(0,10);
+  $('bookingToday').textContent=bookings.filter(b=>b.time&&b.time.startsWith(today)).length;
+  $('bookingPending').textContent=bookings.filter(b=>b.status==='pending').length;
+  $('bookingConfirmed').textContent=bookings.filter(b=>b.status==='confirmed').length;
+  $('bookingTotal').textContent=bookings.length;
+  const tbody=$('bookingTbody');
+  if(list.length===0){ tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无预约</div></div></td></tr>`; }
+  else {
+    const groups = groupByMonth(list, b=>b.time);
+    tbody.innerHTML = groups.map(g => {
+      const header = `<tr class="month-divider"><td colspan="6"><div class="month-group-header"><span>${g.label}</span><span class="month-count">${g.items.length} 个预约</span></div></td></tr>`;
+      const rows = g.items.map(b=>{ const st=b.status==='confirmed'?'<span class="tag green">已确认</span>':'<span class="tag orange">待确认</span>'; return `<tr>
+      <td><span class="member-avatar" style="background:${colorOf(memberName(b.memberId))}">${initial(memberName(b.memberId))}</span>${memberName(b.memberId)}</td>
+      <td>${b.item}</td><td>${techName(b.techId)}</td><td class="text-light">${shortTime(b.time)}</td><td>${st}</td>
+      <td><div class="row-actions">${b.status==='pending'?`<button class="btn btn-ghost btn-sm" onclick="confirmBooking(${b.id})">确认</button>`:''}<button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})"><svg><use href="#i-delete"/></svg></button></div></td></tr>`; }).join('');
+      return header + rows;
+    }).join('');
+  }
+}
+function getBookingConditions(){
+  return [...document.querySelectorAll('#bConditionGrid input:checked')].map(c=>c.value);
+}
+function renderConditionTags(){
+  const tags = $('bConditionTags');
+  const cks = [...document.querySelectorAll('#bConditionGrid input:checked')];
+  if (!cks.length) { tags.style.display='none'; tags.innerHTML=''; return; }
+  tags.style.display='flex';
+  tags.innerHTML = cks.map(c => `<span class="selected-tag">${c.value}</span>`).join('');
+}
+function openBookingModal(){
+  $('bMemberList').innerHTML = members.map(m=>`<option value="${m.name}">`).join('');
+  $('bTech').innerHTML=techs.length?techs.map(t=>`<option value="${t.id}">${t.name} - ${t.level}</option>`).join(''):'<option value="">（暂无美甲师）</option>';
+  $('bEditId').value='';
+  $('bMemberInput').value=''; $('bItem').selectedIndex=0; $('bTech').selectedIndex=0;
+  document.querySelectorAll('#bConditionGrid input').forEach(c=>c.checked=false);
+  renderConditionTags();
+  const now=new Date(); now.setMinutes(0,0,0); now.setHours(now.getHours()+1); $('bTime').value=now.toISOString().slice(0,16);
+  openModal('bookingModal');
+}
+function saveBooking(){
+  const nameInput=$('bMemberInput').value.trim();
+  if(!nameInput){toast('请输入客户姓名');return;}
+  if(!$('bTime').value){toast('请选择预约时间');return;}
+  const memberId=memberIdOf(nameInput);
+  const conds = getBookingConditions();
+  if(!conds.length){toast('请至少选择一项前置条件');return;}
+  // 构造显示文本：前置条件 + 款式
+  const itemVal = conds.join('+') + ' · ' + $('bItem').value;
+  const editId=$('bEditId').value;
+  if(editId){
+    const b=bookings.find(x=>x.id==editId); if(!b) return;
+    b.memberId=memberId; b.item=itemVal; b.techId=+$('bTech').value||''; b.time=$('bTime').value;
+    toast('预约已更新');
+  } else {
+    const id=Math.max(0,...bookings.map(b=>b.id))+1;
+    bookings.push({id,memberId,item:itemVal,techId:+$('bTech').value||'',time:$('bTime').value,status:'pending'});
+    toast('预约已登记');
+  }
+  saveData();renderAll();closeModal('bookingModal');
+}
+function confirmBooking(id){ const b=bookings.find(x=>x.id==id); if(b){b.status='confirmed';saveData();renderAll();toast('已确认预约');} }
+function deleteBooking(id){ if(!confirm('确定取消该预约吗？')) return; bookings=bookings.filter(b=>b.id!==id); saveData();renderAll(); toast('已取消预约'); }
+
+// 从 consumes 实时统计美甲师业绩（避免与收入页不同步）
+function calcTechStats(techId){
+  const today=store_todayStr();
+  const ym=today.slice(0,7);
+  const todayList=consumes.filter(c=>c.techId==techId && c.time && c.time.startsWith(today));
+  const monthList=consumes.filter(c=>c.techId==techId && c.time && c.time.startsWith(ym));
+  return {
+    todayOrders: todayList.length,
+    todayIncome: todayList.reduce((s,c)=>s+(+c.amount||0),0),
+    monthIncome: monthList.reduce((s,c)=>s+(+c.amount||0),0),
+  };
+}
+function store_todayStr(){
+  const d=new Date();
+  const m=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return `${d.getFullYear()}-${m}-${day}`;
+}
+
+function renderTechs(){
+  $('techCount').textContent=techs.length;
+  $('techOnline').textContent=techs.filter(t=>t.status==='online').length;
+  $('techBusy').textContent=techs.filter(t=>t.status==='busy').length;
+  // 业绩王：按本月实时业绩排序
+  const techWithStats=techs.map(t=>({t, stats:calcTechStats(t.id)}));
+  const top=techWithStats.slice().sort((a,b)=>b.stats.monthIncome-a.stats.monthIncome)[0];
+  $('topTech').textContent=(top && top.stats.monthIncome>0)?top.t.name:(techs.length?'—':'—');
+  const grid=$('techGrid');
+  if(techs.length===0){ grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><svg><use href="#i-empty"/></svg><div>暂无美甲师</div></div>`; return; }
+  grid.innerHTML=techWithStats.map(({t,stats})=>`<div class="tech-card">
+    <div class="tech-status ${t.status}"></div>
+    <div class="tech-avatar" style="background:linear-gradient(135deg, ${colorOf(t.name)}, ${colorOf(t.name+'x')})">${initial(t.name)}</div>
+    <div class="tech-name">${t.name}</div>
+    <div class="tech-role">${t.level} · ${t.skill||'综合'}</div>
+    <div class="tech-stats">
+      <div class="tech-stat-item"><div class="num">${stats.todayOrders}</div><div class="label">今日单</div></div>
+      <div class="tech-stat-item"><div class="num">¥${fmt(stats.todayIncome)}</div><div class="label">今日收入</div></div>
+      <div class="tech-stat-item"><div class="num">¥${fmt(stats.monthIncome)}</div><div class="label">本月业绩</div></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:6px;">
+      <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="editTech(${t.id})"><svg><use href="#i-edit"/></svg> 编辑</button>
+      <button class="btn btn-danger btn-sm" style="flex:1;" onclick="deleteTech(${t.id})"><svg><use href="#i-delete"/></svg> 删除</button>
+    </div></div>`).join('');
+}
+function openTechModal(){ $('techModalTitle').textContent='新增美甲师'; $('techEditId').value=''; $('tName').value='';$('tSkill').value='';$('tLevel').value='初级美甲师';$('tStatus').value='online'; openModal('techModal'); }
+function editTech(id){ const t=techs.find(x=>x.id==id); if(!t) return; $('techModalTitle').textContent='编辑美甲师'; $('techEditId').value=id; $('tName').value=t.name;$('tSkill').value=t.skill||'';$('tLevel').value=t.level;$('tStatus').value=t.status; openModal('techModal'); }
+function saveTech(){ const name=$('tName').value.trim(); if(!name){toast('请输入姓名');return;} const editId=$('techEditId').value; if(editId){ const t=techs.find(x=>x.id==editId); t.name=name;t.skill=$('tSkill').value;t.level=$('tLevel').value;t.status=$('tStatus').value; toast('美甲师已更新'); } else { const id=Math.max(0,...techs.map(t=>t.id))+1; techs.push({id,name,skill:$('tSkill').value,level:$('tLevel').value,status:$('tStatus').value,todayOrders:0,todayIncome:0,monthIncome:0}); toast('已新增美甲师 '+name); } saveData();renderAll();closeModal('techModal'); }
+function deleteTech(id){ if(!confirm('确定删除该美甲师吗？')) return; techs=techs.filter(t=>t.id!==id); saveData();renderAll(); toast('已删除'); }
+
+function renderIncome(){
+  const today=new Date().toISOString().slice(0,10);
+  const tl=consumes.filter(c=>c.time&&c.time.startsWith(today));
+  const ti=tl.reduce((s,c)=>s+(+c.amount||0),0);
+  const totalI=consumes.reduce((s,c)=>s+(+c.amount||0),0);
+  $('todayIncome').textContent=fmt(ti);
+  $('totalIncome').textContent=fmt(totalI);
+  $('todayOrders').textContent=tl.length;
+  $('todayAvg').textContent=tl.length?fmt(Math.round(ti/tl.length)):0;
+  const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const yi=consumes.filter(c=>c.time&&c.time.startsWith(yest)).reduce((s,c)=>s+(+c.amount||0),0);
+  const diff=ti-yi;
+  $('todayIncomeTrend').textContent=diff>=0?`较昨日 ↑ ¥${fmt(diff)}`:`较昨日 ↓ ¥${fmt(-diff)}`;
+  const ti2=techs.map(t=>{ const orders=tl.filter(c=>c.techId==t.id); const income=orders.reduce((s,c)=>s+(+c.amount||0),0); return {...t,orders:orders.length,income}; }).filter(t=>t.orders>0||t.status!=='offline').sort((a,b)=>b.income-a.income);
+  const tbody=$('incomeTbody');
+  if(ti2.length===0){ tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无收入数据</div></div></td></tr>`; }
+  else { const maxI=Math.max(...ti2.map(t=>t.income),1); tbody.innerHTML=ti2.map(t=>{ const pct=ti>0?Math.round(t.income/ti*100):0; return `<tr>
+    <td><span class="member-avatar" style="background:${colorOf(t.name)}">${initial(t.name)}</span>${t.name}<br><span class="text-light" style="font-size:11px;margin-left:42px;">${t.level}</span></td>
+    <td>${t.orders} 单</td><td class="fw-700 text-pink">¥${fmt(t.income)}</td><td>${pct}%</td>
+    <td style="min-width:120px;"><div class="progress-bar"><div class="progress-fill" style="width:${t.income/maxI*100}%"></div></div></td></tr>`; }).join(''); }
+}
+
+function renderDate(){ const d=new Date(); const week=['日','一','二','三','四','五','六'][d.getDay()]; $('todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${week}`; }
+document.querySelectorAll('.modal-mask').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show');}));
+// 手动输入框实时更新合计
+$('cPayManual').addEventListener('input', updatePaySum);
+// 前置条件多选实时标签（预约弹窗）
+document.querySelectorAll('#bConditionGrid input').forEach(c=>c.addEventListener('change', renderConditionTags));
+
+renderDate();
+renderMembers();
+
+// 注册 Service Worker（PWA 离线可用 + 主屏幕应用）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
