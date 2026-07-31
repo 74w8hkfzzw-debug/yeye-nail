@@ -1,5 +1,5 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v1';
+const CACHE_NAME = 'yeye-nail-v2'; // 升版本号强制清旧缓存
 const BASE = '/yeye-nail/';
 const ASSETS = [
   BASE,
@@ -36,8 +36,9 @@ self.addEventListener('fetch', e => {
 
   e.respondWith(
     fetch(e.request).then(res => {
-      // 成功则更新缓存（仅 html/静态资源）
-      if (res.ok && (e.request.mode === 'navigate' || /\.(png|json|css|js)$/.test(url.pathname))) {
+      // HTML 请求只走网络，不缓存（保证新版本能立即生效）
+      const isHtml = e.request.mode === 'navigate' || e.request.headers.get('accept')?.includes('text/html');
+      if (res.ok && !isHtml && /\.(png|json|css|js|svg)$/.test(url.pathname)) {
         const copy = res.clone();
         caches.open(CACHE_NAME).then(cache => cache.put(e.request, copy));
       }
