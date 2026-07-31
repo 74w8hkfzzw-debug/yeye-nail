@@ -162,6 +162,31 @@ body {
   display: flex; align-items: center; gap: 6px;
 }
 
+/* 云端同步状态指示器 */
+.sync-pill {
+  background: var(--card);
+  padding: 6px 12px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  display: flex; align-items: center; gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1.5px solid transparent;
+  white-space: nowrap;
+}
+.sync-pill:hover { box-shadow: 0 2px 12px rgba(255,107,157,0.2); }
+.sync-pill .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.sync-pill.synced .sync-dot { background: var(--success); }
+.sync-pill.synced { color: var(--success); }
+.sync-pill.syncing .sync-dot { background: var(--warning); animation: pulse 1s infinite; }
+.sync-pill.syncing { color: var(--warning); }
+.sync-pill.offline .sync-dot { background: var(--text-light); }
+.sync-pill.offline { color: var(--text-light); }
+.sync-pill.error .sync-dot { background: var(--danger); }
+.sync-pill.error { color: var(--danger); }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
 .avatar {
   width: 40px; height: 40px;
   border-radius: 50%;
@@ -920,6 +945,9 @@ input[type="checkbox"] {
       </div>
     </div>
     <div class="topbar-right">
+      <div class="sync-pill offline" id="syncStatus" onclick="manualSync()">
+        <span class="sync-dot"></span><span id="syncText">离线</span>
+      </div>
       <div class="date-pill"><svg width="14" height="14" fill="currentColor"><use href="#i-cal"/></svg> <span id="todayDate"></span></div>
       <div class="avatar">店长</div>
     </div>
@@ -1423,7 +1451,7 @@ input[type="checkbox"] {
 const COLORS = ['#ff6b9d','#ff8fab','#ffa07a','#f66ec7','#f9c80e','#f86624','#ea3546','#662e9b','#43bccd','#5f2eea'];
 
 // 版本号：升级此号会清空旧数据重新开始（用于切换演示数据↔空白状态）
-const DATA_VERSION = 'empty-v1';
+const DATA_VERSION = 'empty-v2';
 
 // 自动清空旧版本数据
 if (localStorage.getItem('yeye_data_version') !== DATA_VERSION) {
@@ -1434,18 +1462,141 @@ if (localStorage.getItem('yeye_data_version') !== DATA_VERSION) {
   localStorage.setItem('yeye_data_version', DATA_VERSION);
 }
 
-// 全部从空开始，由用户自行录入
+// 全部从本地开始（随后会从云端拉取覆盖）
 let members = JSON.parse(localStorage.getItem('yeye_members') || '[]');
 let consumes = JSON.parse(localStorage.getItem('yeye_consumes') || '[]');
 let bookings = JSON.parse(localStorage.getItem('yeye_bookings') || '[]');
 let techs = JSON.parse(localStorage.getItem('yeye_techs') || '[]');
 
-function saveData() {
+// ===== 云端同步（GitHub Contents API 当数据库）=====
+const CLOUD = {
+  owner: '74w8hkfzzw-debug',
+  repo: 'yeye-nail',
+  path: 'data/db.json',
+  get token() { return localStorage.getItem('yeye_sync_token') || ''; },
+  sha: null,
+  busy: false,
+};
+const CLOUD_ENDPOINT = `https://api.github.com/repos/${CLOUD.owner}/${CLOUD.repo}/contents/${CLOUD.path}`;
+
+function setSyncStatus(state, text) {
+  const pill = $('syncStatus');
+  pill.className = 'sync-pill ' + state;
+  $('syncText').textContent = text;
+}
+
+// 检查 token 是否配置
+function hasCloudToken() { return !!CLOUD.token; }
+
+// 首次配置同步 token
+function setupSyncToken() {
+  const t = prompt('请输入云端同步 Token（github_pat_ 开头）：\n\n在你的 iPhone 和 iPad 上都各输入一次，两台设备数据就能互通。\n\nToken 只存在你这台设备的本地，不会上传到任何地方。');
+  if (t && t.trim().startsWith('github_pat_')) {
+    localStorage.setItem('yeye_sync_token', t.trim());
+    setSyncStatus('synced', '已配置');
+    pullFromCloud();
+  } else if (t !== null) {
+    toast('Token 格式不正确，应以 github_pat_ 开头');
+  }
+}
+
+// 从云端拉取数据
+async function pullFromCloud() {
+  if (!hasCloudToken()) { setSyncStatus('offline', '未配置'); return false; }
+  setSyncStatus('syncing', '同步中');
+  CLOUD.busy = true;
+  try {
+    const r = await fetch(CLOUD_ENDPOINT, {
+      headers: { 'Authorization': `token ${CLOUD.token}`, 'Accept': 'application/vnd.github+json', 'User-Agent': 'yeye-nail' }
+    });
+    if (r.status === 404) {
+      setSyncStatus('synced', '已同步');
+      CLOUD.busy = false;
+      return false;
+    }
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    CLOUD.sha = data.sha;
+    const decoded = JSON.parse(atob(data.content.replace(/\n/g, '')));
+    if (decoded && (decoded.members || decoded.consumes || decoded.bookings || decoded.techs)) {
+      members = decoded.members || [];
+      consumes = decoded.consumes || [];
+      bookings = decoded.bookings || [];
+      techs = decoded.techs || [];
+      saveLocalOnly();
+      renderAll();
+    }
+    setSyncStatus('synced', '已同步');
+    CLOUD.busy = false;
+    return true;
+  } catch (e) {
+    console.warn('pull failed:', e.message);
+    setSyncStatus('offline', '离线');
+    CLOUD.busy = false;
+    return false;
+  }
+}
+
+// 推送数据到云端
+async function pushToCloud() {
+  if (!hasCloudToken()) { setSyncStatus('offline', '未配置'); return false; }
+  if (CLOUD.busy) return;
+  CLOUD.busy = true;
+  setSyncStatus('syncing', '上传中');
+  try {
+    const payload = { members, consumes, bookings, techs };
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+    const body = { message: `sync ${new Date().toISOString().slice(0,19)}`, content };
+    if (CLOUD.sha) body.sha = CLOUD.sha;
+    const r = await fetch(CLOUD_ENDPOINT, {
+      method: 'PUT',
+      headers: { 'Authorization': `token ${CLOUD.token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'yeye-nail' },
+      body: JSON.stringify(body)
+    });
+    if (r.ok) {
+      const data = await r.json();
+      CLOUD.sha = data.content.sha;
+      setSyncStatus('synced', '已同步');
+      CLOUD.busy = false;
+      return true;
+    }
+    if (r.status === 409) { CLOUD.sha = null; await pullFromCloud(); }
+    throw new Error('HTTP ' + r.status);
+  } catch (e) {
+    console.warn('push failed:', e.message);
+    setSyncStatus('offline', '离线');
+    CLOUD.busy = false;
+    return false;
+  }
+}
+
+// 手动同步：点状态指示器
+async function manualSync() {
+  if (!hasCloudToken()) { setupSyncToken(); return; }
+  if (CLOUD.busy) return;
+  await pullFromCloud();
+}
+
+function saveLocalOnly() {
   localStorage.setItem('yeye_members', JSON.stringify(members));
   localStorage.setItem('yeye_consumes', JSON.stringify(consumes));
   localStorage.setItem('yeye_bookings', JSON.stringify(bookings));
   localStorage.setItem('yeye_techs', JSON.stringify(techs));
 }
+
+// 防抖推送：多次快速保存只推一次
+let pushTimer = null;
+function saveData() {
+  saveLocalOnly();
+  if (!hasCloudToken()) { setSyncStatus('offline', '未配置'); return; }
+  if (pushTimer) clearTimeout(pushTimer);
+  setSyncStatus('syncing', '待上传');
+  pushTimer = setTimeout(() => pushToCloud(), 800);
+}
+
+// 启动时拉取云端数据
+pullFromCloud().finally(() => { renderAll(); });
+
 
 function $(id) { return document.getElementById(id); }
 function fmt(n) { return Number(n||0).toLocaleString('zh-CN'); }
