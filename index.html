@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>椰椰Nail · 美甲管理工作台</title>
 <!-- PWA / iOS 主屏幕应用 -->
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="/yeye-nail/manifest.json">
 <meta name="theme-color" content="#ff6b9d">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="椰椰Nail">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/yeye-nail/icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="/yeye-nail/icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="/yeye-nail/icons/icon-512.png">
+<link rel="icon" type="image/png" href="/yeye-nail/icons/favicon-32.png">
 <style>
 :root {
   --primary: #ff6b9d;
@@ -2344,7 +2347,7 @@ renderMembers();
 // 注册 Service Worker（PWA 离线可用 + 主屏幕应用）
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
+    navigator.serviceWorker.register('/yeye-nail/sw.js').catch(() => {});
   });
 }
 </script>
