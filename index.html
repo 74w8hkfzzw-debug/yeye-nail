@@ -1213,6 +1213,11 @@ input[type="checkbox"] {
         <div class="stat-label">总收入（累计）</div>
         <div class="stat-value">¥<span id="totalIncome">0</span></div>
       </div>
+      <div class="stat-card pink">
+        <div class="stat-icon"><svg><use href="#i-cal"/></svg></div>
+        <div class="stat-label">本月收入</div>
+        <div class="stat-value">¥<span id="monthIncome">0</span></div>
+      </div>
       <div class="stat-card blue">
         <div class="stat-icon"><svg><use href="#i-receipt"/></svg></div>
         <div class="stat-label">今日订单数</div>
@@ -2350,10 +2355,14 @@ function deleteTech(id){ if(!confirm('确定删除该美甲师吗？')) return; 
 
 function renderIncome(){
   const today=new Date().toISOString().slice(0,10);
+  const ym=today.slice(0,7);
   const tl=consumes.filter(c=>c.time&&c.time.startsWith(today));
+  const ml=consumes.filter(c=>c.time&&c.time.startsWith(ym));
   const ti=tl.reduce((s,c)=>s+(+c.amount||0),0);
+  const mi=ml.reduce((s,c)=>s+(+c.amount||0),0);
   const totalI=consumes.reduce((s,c)=>s+(+c.amount||0),0);
   $('todayIncome').textContent=fmt(ti);
+  $('monthIncome').textContent=fmt(mi);
   $('totalIncome').textContent=fmt(totalI);
   $('todayOrders').textContent=tl.length;
   $('todayAvg').textContent=tl.length?fmt(Math.round(ti/tl.length)):0;
