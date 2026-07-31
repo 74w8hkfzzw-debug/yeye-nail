@@ -1454,7 +1454,7 @@ input[type="checkbox"] {
 const COLORS = ['#ff6b9d','#ff8fab','#ffa07a','#f66ec7','#f9c80e','#f86624','#ea3546','#662e9b','#43bccd','#5f2eea'];
 
 // 版本号：升级此号会清空旧数据重新开始（用于切换演示数据↔空白状态）
-const DATA_VERSION = 'empty-v2';
+const DATA_VERSION = 'empty-v3';
 
 // 自动清空旧版本数据
 if (localStorage.getItem('yeye_data_version') !== DATA_VERSION) {
@@ -1486,6 +1486,30 @@ function setSyncStatus(state, text) {
   const pill = $('syncStatus');
   pill.className = 'sync-pill ' + state;
   $('syncText').textContent = text;
+}
+
+// 修复旧版 btoa 污染的字符串：检测 "Â·"、"ç°" 等 Latin1-as-UTF8 特征，自动反向修复
+function fixEncoding(v) {
+  if (typeof v === 'string') {
+    // 出现 Latin-1 字符被 UTF-8 解读的特征
+    if (/[ÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖÙÚÛÜÝ]/.test(v)) {
+      try {
+        const bytes = new Uint8Array(v.length);
+        for (let i = 0; i < v.length; i++) bytes[i] = v.charCodeAt(i) & 0xff;
+        const fixed = new TextDecoder('utf-8', {fatal:false}).decode(bytes);
+        // 修复后包含合理的中文字符才算成功
+        if (/[一-鿿]/.test(fixed) && fixed.length >= v.length * 0.5) return fixed;
+      } catch(e) {}
+    }
+    return v;
+  }
+  if (Array.isArray(v)) return v.map(fixEncoding);
+  if (v && typeof v === 'object') {
+    const out = {};
+    for (const k in v) out[k] = fixEncoding(v[k]);
+    return out;
+  }
+  return v;
 }
 
 // 检查 token 是否配置
@@ -1527,11 +1551,14 @@ async function pullFromCloud() {
     const json = new TextDecoder().decode(bytes);
     const decoded = JSON.parse(json);
     if (decoded && (decoded.members || decoded.consumes || decoded.bookings || decoded.techs)) {
-      members = decoded.members || [];
-      consumes = decoded.consumes || [];
-      bookings = decoded.bookings || [];
-      techs = decoded.techs || [];
+      // 自愈：修复被错误编码的字符串（旧版 btoa+escape 污染数据）
+      members = (decoded.members || []).map(fixEncoding);
+      consumes = (decoded.consumes || []).map(fixEncoding);
+      bookings = (decoded.bookings || []).map(fixEncoding);
+      techs = (decoded.techs || []).map(fixEncoding);
       saveLocalOnly();
+      // 修复后立即回写云端
+      pushToCloud();
       renderAll();
     }
     setSyncStatus('synced', '已同步');
