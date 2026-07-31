@@ -2,8 +2,8 @@
   "name": "椰椰Nail · 美甲管理工作台",
   "short_name": "椰椰Nail",
   "description": "美甲店会员登记、消费记录、预约管理、美甲师业绩、今日收入一站式工作台",
-  "start_url": "./index.html",
-  "scope": "./",
+  "start_url": "/yeye-nail/index.html",
+  "scope": "/yeye-nail/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#f7f6fb",
@@ -15,7 +15,7 @@
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "今日收入", "url": "./index.html#income", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
-    { "name": "新增消费", "url": "./index.html#consume", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+    { "name": "今日收入", "url": "/yeye-nail/index.html#income", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "新增消费", "url": "/yeye-nail/index.html#consume", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
   ]
 }
