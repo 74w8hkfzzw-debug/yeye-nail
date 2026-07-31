@@ -1,1 +1,1 @@
-{"members":[],"consumes":[],"bookings":[{"id":99,"memberId":"小玉","item":"本甲 · 纯色美甲","techId":"","time":"2026-07-31T10:00","status":"pending"},{"id":100,"memberId":"椰","item":"本甲 · 纯色美甲","techId":"","time":"2026-07-31T10:00","status":"pending"}],"techs":[]}
+{"members":[],"consumes":[],"bookings":[{"id":99,"memberId":"小玉","item":"本甲 · 纯色美甲","techId":"","time":"2026-07-31T10:00","status":"pending"},{"id":100,"memberId":"椰","item":"本甲 · 纯色美甲","techId":"","time":"2026-07-31T10:00","status":"confirmed"}],"techs":[]}
