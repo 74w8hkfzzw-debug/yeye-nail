@@ -1,13 +1,14 @@
 // 椰椰Nail Service Worker - 离线缓存
 const CACHE_NAME = 'yeye-nail-v1';
+const BASE = '/yeye-nail/';
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-192.png',
-  './icons/icon-512.png',
-  './icons/apple-touch-icon.png',
-  './icons/favicon-32.png'
+  BASE,
+  BASE + 'index.html',
+  BASE + 'manifest.json',
+  BASE + 'icons/icon-192.png',
+  BASE + 'icons/icon-512.png',
+  BASE + 'icons/apple-touch-icon.png',
+  BASE + 'icons/favicon-32.png'
 ];
 
 // 安装：预缓存核心资源
@@ -43,7 +44,7 @@ self.addEventListener('fetch', e => {
       return res;
     }).catch(() => {
       // 离线时回退缓存
-      return caches.match(e.request).then(cached => cached || caches.match('./index.html'));
+      return caches.match(e.request).then(cached => cached || caches.match(BASE + 'index.html'));
     })
   );
 });
