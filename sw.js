@@ -1,5 +1,5 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v7'; // 升版本号强制清旧缓存（v7：修复美甲师明细乱码；成本改编辑防误删；预约前置条件+4款式；成本分类+钻/甲油胶/美甲耗材）
+const CACHE_NAME = 'yeye-nail-v8'; // 升版本号强制清旧缓存（v8：整体风格深棕+焦糖橙+米白主题，重画椰子图标）
 const ASSETS = [
   './',
   './index.html',
