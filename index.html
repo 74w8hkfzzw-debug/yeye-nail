@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>椰椰Nail · 美甲管理工作台</title>
 <!-- PWA / iOS 主屏幕应用 -->
-<link rel="manifest" href="/yeye-nail/manifest.json">
+<link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#ff6b9d">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="椰椰Nail">
-<link rel="apple-touch-icon" sizes="180x180" href="/yeye-nail/icons/apple-touch-icon.png">
-<link rel="apple-touch-icon" sizes="192x192" href="/yeye-nail/icons/icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="/yeye-nail/icons/icon-512.png">
-<link rel="icon" type="image/png" href="/yeye-nail/icons/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="./icons/icon-512.png">
+<link rel="icon" type="image/png" href="./icons/favicon-32.png">
 <style>
 :root {
   --primary: #ff6b9d;
@@ -357,6 +357,168 @@ body {
   font-size: 13px;
 }
 .date-filter .clear-date:hover { color: var(--danger); border-color: var(--danger); }
+
+/* 日期区间筛选器 */
+.range-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-light);
+}
+.range-filter input[type="date"] {
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 13px;
+  background: var(--bg);
+  font-family: inherit;
+  outline: none;
+  color: var(--text);
+}
+.range-filter input[type="date"]:focus { border-color: var(--primary); background: #fff; }
+
+/* ===== 预约管理（日历视图）===== */
+.booking-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.booking-tab {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.booking-tab:hover { border-color: var(--primary); }
+.booking-tab.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+.booking-range-label { font-size: 13px; color: var(--text-light); }
+.booking-search {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.booking-search input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+}
+.booking-search input:focus { border-color: var(--primary); }
+.booking-search button {
+  padding: 10px 18px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.booking-hint { color: var(--text-light); font-size: 13px; margin-bottom: 8px; }
+.calendar-wrap {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+.calendar-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-light);
+  font-weight: 600;
+}
+.calendar-header .weekend { color: var(--primary); }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+.calendar-cell {
+  min-height: 110px;
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1.5px solid transparent;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+.calendar-cell:hover { background: #f7e9ee; }
+.calendar-cell.outside { opacity: 0.35; }
+/* 今天：红色圆圈 + 红色外框（对齐示例图） */
+.calendar-cell.today {
+  border: 2px solid #ff3b30;
+  background: #fff;
+}
+.calendar-cell.today .cell-day {
+  background: #ff3b30;
+  color: #fff;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  font-size: 16px;
+}
+.calendar-cell.selected { border-color: var(--primary); background: #fff5f8; }
+.cell-head { display: flex; align-items: center; gap: 6px; }
+.cell-day { font-size: 18px; font-weight: 700; color: var(--text); }
+.cell-lunar { font-size: 11px; color: var(--text-light); }
+.calendar-cell.weekend .cell-day { color: var(--primary); }
+.event-pill {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+/* 已确认 = 绿色；待确认 = 紫色（对齐示例图） */
+.event-pill.confirmed { background: #a8d5b6; color: #1e5a32; }
+.event-pill.pending { background: #c4b5e0; color: #4b3a85; }
+.event-more {
+  font-size: 10px;
+  color: var(--primary);
+  font-weight: 600;
+  padding: 1px 4px;
+}
+.calendar-day-detail {
+  margin-top: 12px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  color: var(--text-light);
+}
+.calendar-day-detail h4 { margin: 0 0 8px; color: var(--text); font-size: 15px; }
+.calendar-day-detail .empty { color: var(--text-light); text-align: center; padding: 16px 0; }
 
 /* ===== 按钮 ===== */
 .btn {
@@ -927,8 +1089,11 @@ input[type="checkbox"] {
     <div class="nav-item" data-page="techs">
       <svg><use href="#i-star"/></svg> 美甲师
     </div>
+    <div class="nav-item" data-page="cost">
+      <svg><use href="#i-receipt"/></svg> 成本记录
+    </div>
     <div class="nav-item" data-page="income">
-      <svg><use href="#i-money"/></svg> 今日收入
+      <svg><use href="#i-money"/></svg> 收入统计
     </div>
   </nav>
   <div class="sidebar-footer">© 2026 椰椰Nail 工作室</div>
@@ -1075,6 +1240,13 @@ input[type="checkbox"] {
           <button class="clear-date" style="display:none;" id="consumeClearDate" onclick="clearConsumeDate()">清除</button>
         </div>
       </div>
+      <div class="range-filter" style="margin-bottom:12px;">
+        <span>起</span>
+        <input type="date" id="consumeRangeStart" onchange="renderConsume()">
+        <span>至</span>
+        <input type="date" id="consumeRangeEnd" onchange="renderConsume()">
+        <button class="clear-date" id="consumeRangeClear" onclick="clearConsumeRange()">清除区间</button>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
@@ -1121,41 +1293,46 @@ input[type="checkbox"] {
 
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">预约列表</div>
+        <div class="panel-title">预约管理 / 业务管理</div>
         <button class="btn btn-primary btn-sm" onclick="openBookingModal()">
           <svg><use href="#i-add"/></svg> 新增预约
         </button>
       </div>
-      <div class="search-bar">
-        <div class="search-input-wrap">
-          <svg><use href="#i-search"/></svg>
-          <input type="text" class="search-input" id="bookingSearch" placeholder="搜索会员 / 美甲师 / 项目..." oninput="renderBooking()">
-        </div>
-        <div class="date-filter">
-          <select id="bookingDateType" onchange="onBookingDateType()">
-            <option value="all">全部日期</option>
-            <option value="today">今日</option>
-            <option value="month">本月</option>
-            <option value="day">指定日期</option>
-          </select>
-          <input type="date" id="bookingDate" style="display:none;" onchange="renderBooking()">
-          <button class="clear-date" style="display:none;" id="bookingClearDate" onclick="clearBookingDate()">清除</button>
-        </div>
+
+      <div class="booking-tabs">
+        <button class="booking-tab" data-view="day" onclick="setCalView('day')">日</button>
+        <button class="booking-tab" data-view="week" onclick="setCalView('week')">周</button>
+        <button class="booking-tab active" data-view="month" onclick="setCalView('month')">月</button>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>会员</th>
-              <th>项目</th>
-              <th>美甲师</th>
-              <th>预约时间</th>
-              <th>状态</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody id="bookingTbody"></tbody>
-        </table>
+
+      <div class="booking-tabs">
+        <button class="booking-tab active" data-bktab="all" onclick="setBkTab('all')">全部</button>
+        <button class="booking-tab" data-bktab="today" onclick="setBkTab('today')">今日</button>
+        <button class="booking-tab" data-bktab="month" onclick="setBkTab('month')">本月</button>
+        <button class="booking-tab" data-bktab="pending" onclick="setBkTab('pending')">待确认</button>
+        <span class="booking-range-label">日期：</span>
+        <input type="date" id="bkRangeStart" onchange="renderCalendar()">
+        <span>至</span>
+        <input type="date" id="bkRangeEnd" onchange="renderCalendar()">
+        <button class="clear-date" onclick="clearBookingRange()">清除区间</button>
+      </div>
+
+      <div class="booking-search">
+        <input type="text" id="bkSearch" placeholder="搜索客户/款式/美甲师..." oninput="renderCalendar()">
+        <button onclick="renderCalendar()"><svg style="width:14px;height:14px;fill:#fff;vertical-align:-2px;"><use href="#i-search"/></svg> 搜索</button>
+      </div>
+
+      <div class="booking-hint">点击日期查看详情，事件彩色显示</div>
+
+      <div class="calendar-wrap">
+        <div class="calendar-header">
+          <div class="weekend">周日</div><div>周一</div><div>周二</div><div>周三</div><div>周四</div><div>周五</div><div class="weekend">周六</div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="calendar-day-detail" id="bkDayDetail">
+        <div class="empty">点击日期查看预约</div>
       </div>
     </div>
   </section>
@@ -1197,6 +1374,93 @@ input[type="checkbox"] {
   </section>
 
   <!-- ===== 今日收入 ===== -->
+  <!-- ===== 成本记录页 ===== -->
+  <section class="page" id="page-cost">
+    <div class="stat-grid">
+      <div class="stat-card orange">
+        <div class="stat-icon"><svg><use href="#i-receipt"/></svg></div>
+        <div class="stat-label" id="costRangeLabel">成本（本月）</div>
+        <div class="stat-value">¥<span id="costRangeTotal">0</span></div>
+      </div>
+      <div class="stat-card pink">
+        <div class="stat-icon"><svg><use href="#i-cal"/></svg></div>
+        <div class="stat-label">本月成本</div>
+        <div class="stat-value">¥<span id="costMonthTotal">0</span></div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon"><svg><use href="#i-card"/></svg></div>
+        <div class="stat-label">成本笔数</div>
+        <div class="stat-value" id="costCount">0</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon"><svg><use href="#i-trend-up"/></svg></div>
+        <div class="stat-label" id="profitLabel">本月利润</div>
+        <div class="stat-value">¥<span id="profitValue">0</span></div>
+        <div class="stat-sub" id="profitDetail" style="font-size:11px;color:var(--text-light);margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <div class="range-filter" style="margin-bottom:12px;">
+      <span>日期范围：</span>
+      <input type="date" id="costRangeStart" onchange="renderCosts()">
+      <span>至</span>
+      <input type="date" id="costRangeEnd" onchange="renderCosts()">
+      <button class="clear-date" id="costRangeClear" onclick="clearCostRange()">清除区间</button>
+      <select id="costCatFilter" onchange="renderCosts()" style="margin-left:8px;border:1px solid #ffd6e5;border-radius:8px;padding:4px 8px;font-size:13px;color:var(--ink);background:#fff;">
+        <option value="">全部分类</option>
+        <option>房租水电</option>
+        <option>员工工资</option>
+        <option>耗材采购</option>
+        <option>营销推广</option>
+        <option>其他</option>
+      </select>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">成本明细</div>
+        <button class="btn btn-primary btn-sm" onclick="openCostModal()">
+          <svg><use href="#i-add"/></svg> 记一笔成本
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>项目</th>
+              <th>分类</th>
+              <th>金额</th>
+              <th>备注</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="costTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">分类汇总</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>分类</th>
+              <th>笔数</th>
+              <th>金额</th>
+              <th>占比</th>
+              <th>进度</th>
+            </tr>
+          </thead>
+          <tbody id="costCatTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <section class="page" id="page-income">
     <div class="income-hero">
       <div class="income-hero-label">
@@ -1230,9 +1494,99 @@ input[type="checkbox"] {
       </div>
     </div>
 
+    <div class="range-filter" style="margin-bottom:12px;">
+      <span>日期范围：</span>
+      <input type="date" id="incomeRangeStart" onchange="renderIncome()">
+      <span>至</span>
+      <input type="date" id="incomeRangeEnd" onchange="renderIncome()">
+      <button class="clear-date" id="incomeRangeClear" onclick="clearIncomeRange()">清除区间</button>
+      <span style="margin-left:8px;color:var(--text-light);font-size:12px;">(空则显示今日数据)</span>
+    </div>
+
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">美甲师今日收入明细</div>
+        <div class="panel-title" id="profitPanelTitle">利润概览（本月）</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+        <div style="background:var(--primary-light);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-light);">收入</div>
+          <div style="font-size:22px;font-weight:800;color:var(--primary-dark);">¥<span id="pfIncome">0</span></div>
+        </div>
+        <div style="background:#fff1d6;border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-light);">成本</div>
+          <div style="font-size:22px;font-weight:800;color:var(--warning);">¥<span id="pfCost">0</span></div>
+        </div>
+        <div style="background:#d9f7be;border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:12px;color:var(--text-light);">利润</div>
+          <div style="font-size:22px;font-weight:800;color:var(--success);">¥<span id="pfProfit">0</span></div>
+          <div style="font-size:11px;color:var(--text-light);" id="pfRate"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">收款渠道明细</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>渠道</th>
+              <th>笔数</th>
+              <th>金额</th>
+              <th>占比</th>
+              <th>进度</th>
+            </tr>
+          </thead>
+          <tbody id="channelTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">项目收入明细（本甲/甲片/建构等）</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th>单数</th>
+              <th>金额</th>
+              <th>占比</th>
+              <th>进度</th>
+            </tr>
+          </thead>
+          <tbody id="itemIncomeTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">每日收入明细</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>订单数</th>
+              <th>收入</th>
+              <th>当日成本</th>
+              <th>当日利润</th>
+            </tr>
+          </thead>
+          <tbody id="dailyIncomeTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">美甲师收入明细</div>
       </div>
       <div class="table-wrap">
         <table>
@@ -1264,6 +1618,9 @@ input[type="checkbox"] {
   </div>
   <div class="bottom-nav-item" data-page="techs">
     <svg><use href="#i-star"/></svg>美甲师
+  </div>
+  <div class="bottom-nav-item" data-page="cost">
+    <svg><use href="#i-receipt"/></svg>成本
   </div>
   <div class="bottom-nav-item" data-page="income">
     <svg><use href="#i-money"/></svg>收入
@@ -1455,26 +1812,57 @@ input[type="checkbox"] {
 
 <div class="toast" id="toast"></div>
 
+<!-- 成本录入弹窗 -->
+<div class="modal-mask" id="costModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="costModalTitle">记一笔成本</div>
+      <button class="modal-close" onclick="closeModal('costModal')">×</button>
+    </div>
+    <div class="form-group">
+      <label>项目名称 *</label>
+      <input type="text" id="cName" placeholder="如：甲油胶采购 / 8月房租 / 美团推广">
+    </div>
+    <div class="form-group">
+      <label>金额（元）*</label>
+      <input type="number" id="cAmount" placeholder="0" min="0" step="0.01">
+    </div>
+    <div class="form-group">
+      <label>分类</label>
+      <select id="cCategory">
+        <option>耗材采购</option>
+        <option>房租水电</option>
+        <option>员工工资</option>
+        <option>营销推广</option>
+        <option>其他</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>日期</label>
+      <input type="date" id="cDate">
+    </div>
+    <div class="form-group">
+      <label>备注</label>
+      <input type="text" id="cNote" placeholder="选填">
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeModal('costModal')">取消</button>
+      <button class="btn btn-primary" onclick="saveCost()">保存</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const COLORS = ['#ff6b9d','#ff8fab','#ffa07a','#f66ec7','#f9c80e','#f86624','#ea3546','#662e9b','#43bccd','#5f2eea'];
 
-// 版本号：升级此号会清空旧数据重新开始（用于切换演示数据↔空白状态）
-const DATA_VERSION = 'empty-v3';
-
-// 自动清空旧版本数据
-if (localStorage.getItem('yeye_data_version') !== DATA_VERSION) {
-  localStorage.removeItem('yeye_members');
-  localStorage.removeItem('yeye_consumes');
-  localStorage.removeItem('yeye_bookings');
-  localStorage.removeItem('yeye_techs');
-  localStorage.setItem('yeye_data_version', DATA_VERSION);
-}
+// 数据版本标记已废弃：正式数据永不自动清空
 
 // 全部从本地开始（随后会从云端拉取覆盖）
 let members = JSON.parse(localStorage.getItem('yeye_members') || '[]');
 let consumes = JSON.parse(localStorage.getItem('yeye_consumes') || '[]');
 let bookings = JSON.parse(localStorage.getItem('yeye_bookings') || '[]');
 let techs = JSON.parse(localStorage.getItem('yeye_techs') || '[]');
+let costs = JSON.parse(localStorage.getItem('yeye_costs') || '[]');
 
 // ===== 云端同步（GitHub Contents API 当数据库）=====
 const CLOUD = {
@@ -1517,6 +1905,7 @@ function fixEncoding(v) {
   return v;
 }
 
+// 从云端拉取数据（EdgeOne KV）
 // 检查 token 是否配置
 function hasCloudToken() { return !!CLOUD.token; }
 
@@ -1561,9 +1950,8 @@ async function pullFromCloud() {
       consumes = (decoded.consumes || []).map(fixEncoding);
       bookings = (decoded.bookings || []).map(fixEncoding);
       techs = (decoded.techs || []).map(fixEncoding);
+      costs = (decoded.costs || []).map(fixEncoding);
       saveLocalOnly();
-      // 修复后立即回写云端
-      pushToCloud();
       renderAll();
     }
     setSyncStatus('synced', '已同步');
@@ -1584,7 +1972,7 @@ async function pushToCloud() {
   CLOUD.busy = true;
   setSyncStatus('syncing', '上传中');
   try {
-    const payload = { members, consumes, bookings, techs };
+    const payload = { members, consumes, bookings, techs, costs };
     // 使用 TextEncoder 保证中文/表情无损
     const bytes = new TextEncoder().encode(JSON.stringify(payload));
     let binary = '';
@@ -1626,6 +2014,7 @@ function saveLocalOnly() {
   localStorage.setItem('yeye_consumes', JSON.stringify(consumes));
   localStorage.setItem('yeye_bookings', JSON.stringify(bookings));
   localStorage.setItem('yeye_techs', JSON.stringify(techs));
+  localStorage.setItem('yeye_costs', JSON.stringify(costs));
 }
 
 // 防抖推送：多次快速保存只推一次
@@ -1668,7 +2057,8 @@ const PAGE_INFO = {
   consume:{title:'会员消费记录',sub:'查看与登记会员消费明细'},
   booking:{title:'预约登记',sub:'管理客户预约时间表'},
   techs:{title:'美甲师',sub:'管理美甲师团队与排班'},
-  income:{title:'今日收入',sub:'实时掌握店铺收入数据'},
+  cost:{title:'成本记录',sub:'记录店铺开支，自动算利润'},
+  income:{title:'收入统计',sub:'收入明细 · 渠道 · 技师 · 利润'},
 };
 
 function switchPage(page) {
@@ -1680,8 +2070,9 @@ function switchPage(page) {
   $('pageSubtitle').textContent=PAGE_INFO[page].sub;
   if(page==='members') renderMembers();
   if(page==='consume') renderConsume();
-  if(page==='booking') renderBooking();
+  if(page==='booking') renderCalendar();
   if(page==='techs') renderTechs();
+  if(page==='cost') renderCosts();
   if(page==='income') renderIncome();
   $('sidebar').classList.remove('open');
   $('overlay').classList.remove('show');
@@ -1689,12 +2080,13 @@ function switchPage(page) {
 
 document.querySelectorAll('.nav-item, .bottom-nav-item').forEach(n => n.addEventListener('click', ()=>switchPage(n.dataset.page)));
 
-// 全局刷新所有页面数据（保证预约/消费/收入/美甲师/会员数据同步）
+// 全局刷新所有页面数据（保证预约/消费/收入/美甲师/会员/成本数据同步）
 function renderAll(){
   renderMembers();
   renderConsume();
-  renderBooking();
+  renderCalendar();
   renderTechs();
+  renderCosts();
   renderIncome();
 }
 function toggleSidebar() { $('sidebar').classList.toggle('open'); $('overlay').classList.toggle('show'); }
@@ -1826,27 +2218,17 @@ function clearConsumeDate(){
   $('consumeClearDate').style.display='none';
   renderConsume();
 }
-// 预约日期筛选器交互
-function onBookingDateType(){
-  const t = $('bookingDateType').value;
-  $('bookingDate').style.display = (t==='day') ? '' : 'none';
-  $('bookingClearDate').style.display = (t!=='all') ? '' : 'none';
-  if(t!=='day') $('bookingDate').value='';
-  renderBooking();
-}
-function clearBookingDate(){
-  $('bookingDateType').value='all';
-  $('bookingDate').value='';
-  $('bookingDate').style.display='none';
-  $('bookingClearDate').style.display='none';
-  renderBooking();
-}
+// 旧版预约筛选器已迁移到日历视图，以下函数保留为兼容
+function onBookingDateType(){ renderCalendar(); }
+function clearBookingDate(){ renderCalendar(); }
 
 function renderConsume(){
   const kw=$('consumeSearch').value.trim().toLowerCase();
   const cdt=$('consumeDateType').value, cdate=$('consumeDate').value;
+  const rs=$('consumeRangeStart')?.value||'', re=$('consumeRangeEnd')?.value||'';
   const list=consumes.filter(c=>{ if(!kw) return true; return memberName(c.memberId).toLowerCase().includes(kw)||techName(c.techId).toLowerCase().includes(kw)||c.item.toLowerCase().includes(kw); })
     .filter(c=>matchDateFilter(c.time, cdt, cdate))
+    .filter(c=>matchDateRange(c.time, rs, re))
     .slice().reverse();
   $('consumeTotalCount').textContent=fmt(consumes.length);
   $('consumeTotalAmount').textContent=fmt(consumes.reduce((s,c)=>s+(+c.amount||0),0));
@@ -2235,31 +2617,8 @@ function deleteConsume(id){
   toast('已删除');
 }
 
-function renderBooking(){
-  const kw=$('bookingSearch').value.trim().toLowerCase();
-  const bdt=$('bookingDateType').value, bdate=$('bookingDate').value;
-  const list=bookings.filter(b=>{ if(!kw) return true; return memberName(b.memberId).toLowerCase().includes(kw)||techName(b.techId).toLowerCase().includes(kw)||b.item.toLowerCase().includes(kw); })
-    .filter(b=>matchDateFilter(b.time, bdt, bdate))
-    .slice().reverse();
-  const today=new Date().toISOString().slice(0,10);
-  $('bookingToday').textContent=bookings.filter(b=>b.time&&b.time.startsWith(today)).length;
-  $('bookingPending').textContent=bookings.filter(b=>b.status==='pending').length;
-  $('bookingConfirmed').textContent=bookings.filter(b=>b.status==='confirmed').length;
-  $('bookingTotal').textContent=bookings.length;
-  const tbody=$('bookingTbody');
-  if(list.length===0){ tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无预约</div></div></td></tr>`; }
-  else {
-    const groups = groupByMonth(list, b=>b.time);
-    tbody.innerHTML = groups.map(g => {
-      const header = `<tr class="month-divider"><td colspan="6"><div class="month-group-header"><span>${g.label}</span><span class="month-count">${g.items.length} 个预约</span></div></td></tr>`;
-      const rows = g.items.map(b=>{ const st=b.status==='confirmed'?'<span class="tag green">已确认</span>':'<span class="tag orange">待确认</span>'; return `<tr>
-      <td><span class="member-avatar" style="background:${colorOf(memberName(b.memberId))}">${initial(memberName(b.memberId))}</span>${memberName(b.memberId)}</td>
-      <td>${b.item}</td><td>${techName(b.techId)}</td><td class="text-light">${shortTime(b.time)}</td><td>${st}</td>
-      <td><div class="row-actions">${b.status==='pending'?`<button class="btn btn-ghost btn-sm" onclick="confirmBooking(${b.id})">确认</button>`:''}<button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})"><svg><use href="#i-delete"/></svg></button></div></td></tr>`; }).join('');
-      return header + rows;
-    }).join('');
-  }
-}
+// renderBooking 已重写为 renderCalendar（日历视图），保留为别名兼容
+function renderBooking(){ renderCalendar(); }
 function getBookingConditions(){
   return [...document.querySelectorAll('#bConditionGrid input:checked')].map(c=>c.value);
 }
@@ -2353,23 +2712,272 @@ function editTech(id){ const t=techs.find(x=>x.id==id); if(!t) return; $('techMo
 function saveTech(){ const name=$('tName').value.trim(); if(!name){toast('请输入姓名');return;} const editId=$('techEditId').value; if(editId){ const t=techs.find(x=>x.id==editId); t.name=name;t.skill=$('tSkill').value;t.level=$('tLevel').value;t.status=$('tStatus').value; toast('美甲师已更新'); } else { const id=Math.max(0,...techs.map(t=>t.id))+1; techs.push({id,name,skill:$('tSkill').value,level:$('tLevel').value,status:$('tStatus').value,todayOrders:0,todayIncome:0,monthIncome:0}); toast('已新增美甲师 '+name); } saveData();renderAll();closeModal('techModal'); }
 function deleteTech(id){ if(!confirm('确定删除该美甲师吗？')) return; techs=techs.filter(t=>t.id!==id); saveData();renderAll(); toast('已删除'); }
 
+// ===== 成本记录 =====
+const COST_CATS = {
+  '耗材采购':'orange',
+  '房租水电':'blue',
+  '员工工资':'pink',
+  '营销推广':'green',
+  '其他':'gray',
+};
+function catTag(cat) { return `<span class="tag ${COST_CATS[cat]||'gray'}">${cat}</span>`; }
+
+function openCostModal(){
+  $('costModalTitle').textContent='记一笔成本';
+  $('cName').value=''; $('cAmount').value='';
+  $('cCategory').selectedIndex=0;
+  $('cDate').value=new Date().toISOString().slice(0,10);
+  $('cNote').value='';
+  openModal('costModal');
+}
+function saveCost(){
+  const name=$('cName').value.trim(), amount=+$('cAmount').value||0;
+  if(!name){toast('请填写项目名称');return;}
+  if(amount<=0){toast('请填写金额');return;}
+  costs.push({
+    id: Date.now(),
+    name,
+    amount,
+    category: $('cCategory').value,
+    date: $('cDate').value || new Date().toISOString().slice(0,10),
+    note: $('cNote').value.trim()
+  });
+  closeModal('costModal');
+  saveData();
+  renderCosts();
+  toast('成本已记录');
+}
+function deleteCost(id){
+  if(!confirm('确定删除该成本记录吗？')) return;
+  costs=costs.filter(x=>x.id!=id);
+  saveData();
+  renderCosts();
+}
+
+// 区间/分类过滤后的成本列表
+function filteredCosts(){
+  const rs=$('costRangeStart')?.value||'', re=$('costRangeEnd')?.value||'';
+  const cat=$('costCatFilter')?.value||'';
+  return costs.filter(c=>{
+    const d=String(c.date||'').slice(0,10);
+    if(!d) return false;
+    if(rs && d<rs) return false;
+    if(re && d>re) return false;
+    if(cat && c.category!==cat) return false;
+    return true;
+  });
+}
+
+function renderCosts(){
+  const today=new Date().toISOString().slice(0,10);
+  const ym=today.slice(0,7);
+  const rs=$('costRangeStart')?.value||'', re=$('costRangeEnd')?.value||'';
+  const hasRange=!!(rs||re);
+  // 无区间时默认统计本月
+  const effStart = rs || (re ? '' : ym + '-01');
+  const effEnd = re || (rs ? '' : today);
+  const inRange = costs.filter(c=>{
+    const d=String(c.date||'').slice(0,10);
+    if(!d) return false;
+    if(effStart && d<effStart) return false;
+    if(effEnd && d>effEnd) return false;
+    return true;
+  });
+  const rangeTotal=inRange.reduce((s,c)=>s+(+c.amount||0),0);
+  const monthTotal=costs.filter(c=>String(c.date||'').startsWith(ym)).reduce((s,c)=>s+(+c.amount||0),0);
+  // 利润 = 同期收入 - 同期成本
+  const incomeRange=consumes.filter(c=>{
+    const d=String(c.time||'').slice(0,10);
+    if(!d) return false;
+    if(effStart && d<effStart) return false;
+    if(effEnd && d>effEnd) return false;
+    return true;
+  });
+  const incomeTotal=incomeRange.reduce((s,c)=>s+(+c.amount||0),0);
+  const profit=incomeTotal-rangeTotal;
+
+  $('costRangeLabel').textContent = hasRange ? '成本（区间）' : '成本（本月）';
+  $('costRangeTotal').textContent=fmt(rangeTotal);
+  $('costMonthTotal').textContent=fmt(monthTotal);
+  $('costCount').textContent=costs.length;
+  $('profitLabel').textContent = hasRange ? '区间利润' : '本月利润';
+  $('profitValue').textContent=fmt(profit);
+  $('profitDetail').textContent=`收入 ¥${fmt(incomeTotal)} − 成本 ¥${fmt(rangeTotal)}${incomeTotal>0?` · 利润率 ${Math.round(profit/incomeTotal*100)}%`:''}`;
+
+  // 明细列表（分类过滤也生效）
+  const list=filteredCosts().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const tbody=$('costTbody');
+  if(list.length===0){ tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无成本记录</div></div></td></tr>`; }
+  else{
+    tbody.innerHTML=list.map(c=>`<tr>
+      <td>${String(c.date||'').slice(0,10)}</td>
+      <td class="fw-700">${c.name}</td>
+      <td>${catTag(c.category)}</td>
+      <td class="fw-700" style="color:var(--warning);">¥${fmt(c.amount)}</td>
+      <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.note||''}">${c.note||'—'}</td>
+      <td><button class="btn btn-ghost btn-sm" style="color:var(--danger,#e5484d);" onclick="deleteCost(${c.id})">删除</button></td>
+    </tr>`).join('');
+  }
+
+  // 分类汇总（基于明细过滤结果）
+  const byCat={};
+  list.forEach(c=>{ const k=c.category||'其他'; byCat[k]=byCat[k]||{n:0,sum:0}; byCat[k].n++; byCat[k].sum+=+c.amount||0; });
+  const catArr=Object.entries(byCat).sort((a,b)=>b[1].sum-a[1].sum);
+  const catTotal=catArr.reduce((s,[,v])=>s+v.sum,0);
+  const catTbody=$('costCatTbody');
+  if(catArr.length===0){ catTbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无数据</div></div></td></tr>`; }
+  else{
+    const maxC=Math.max(...catArr.map(([,v])=>v.sum),1);
+    catTbody.innerHTML=catArr.map(([cat,v])=>{
+      const pct=catTotal>0?Math.round(v.sum/catTotal*100):0;
+      return `<tr>
+        <td>${catTag(cat)}</td>
+        <td>${v.n} 笔</td>
+        <td class="fw-700" style="color:var(--warning);">¥${fmt(v.sum)}</td>
+        <td>${pct}%</td>
+        <td style="min-width:120px;"><div class="progress-bar"><div class="progress-fill" style="width:${v.sum/maxC*100}%"></div></div></td>
+      </tr>`;
+    }).join('');
+  }
+}
+function clearCostRange(){
+  $('costRangeStart').value=''; $('costRangeEnd').value='';
+  renderCosts();
+}
+
 function renderIncome(){
   const today=new Date().toISOString().slice(0,10);
   const ym=today.slice(0,7);
-  const tl=consumes.filter(c=>c.time&&c.time.startsWith(today));
+  const rs=$('incomeRangeStart')?.value||'', re=$('incomeRangeEnd')?.value||'';
+  const hasRange = !!(rs || re);
+  // 无区间时默认展示本月（更实用）；区间则按区间
+  const effStart = rs || (re ? '' : ym + '-01');
+  const effEnd = re || (rs ? '' : today);
+  const inRange = c => {
+    const d=String(c.time||'').slice(0,10);
+    if(!d) return false;
+    if(effStart && d<effStart) return false;
+    if(effEnd && d>effEnd) return false;
+    return true;
+  };
+  const tl = consumes.filter(inRange);
   const ml=consumes.filter(c=>c.time&&c.time.startsWith(ym));
   const ti=tl.reduce((s,c)=>s+(+c.amount||0),0);
   const mi=ml.reduce((s,c)=>s+(+c.amount||0),0);
   const totalI=consumes.reduce((s,c)=>s+(+c.amount||0),0);
+  // 显示标签
+  const incomeLabel = hasRange ? '区间收入' : '本月收入';
+  const heroLabel = document.querySelector('.income-hero-label');
+  if (heroLabel) heroLabel.innerHTML = '<svg><use href="#i-money"/></svg> ' + incomeLabel;
   $('todayIncome').textContent=fmt(ti);
   $('monthIncome').textContent=fmt(mi);
   $('totalIncome').textContent=fmt(totalI);
   $('todayOrders').textContent=tl.length;
   $('todayAvg').textContent=tl.length?fmt(Math.round(ti/tl.length)):0;
+  // 对比：上一个同长度周期的收入（简单用昨日）
   const yest=new Date(Date.now()-86400000).toISOString().slice(0,10);
   const yi=consumes.filter(c=>c.time&&c.time.startsWith(yest)).reduce((s,c)=>s+(+c.amount||0),0);
-  const diff=ti-yi;
-  $('todayIncomeTrend').textContent=diff>=0?`较昨日 ↑ ¥${fmt(diff)}`:`较昨日 ↓ ¥${fmt(-diff)}`;
+  const tiToday=consumes.filter(c=>c.time&&c.time.startsWith(today)).reduce((s,c)=>s+(+c.amount||0),0);
+  const diff=tiToday-yi;
+  $('todayIncomeTrend').textContent=diff>=0?`今日 ¥${fmt(tiToday)} · 较昨日 ↑ ¥${fmt(diff)}`:`今日 ¥${fmt(tiToday)} · 较昨日 ↓ ¥${fmt(-diff)}`;
+
+  // ===== 利润概览（与成本页同口径）=====
+  const costInRange=costs.filter(c=>{
+    const d=String(c.date||'').slice(0,10);
+    if(!d) return false;
+    if(effStart && d<effStart) return false;
+    if(effEnd && d>effEnd) return false;
+    return true;
+  });
+  const costTotal=costInRange.reduce((s,c)=>s+(+c.amount||0),0);
+  const profit=ti-costTotal;
+  $('profitPanelTitle').textContent = hasRange ? '利润概览（区间）' : '利润概览（本月）';
+  $('pfIncome').textContent=fmt(ti);
+  $('pfCost').textContent=fmt(costTotal);
+  $('pfProfit').textContent=fmt(profit);
+  $('pfRate').textContent = ti>0 ? `利润率 ${Math.round(profit/ti*100)}%` : '';
+
+  // ===== 收款渠道统计 =====
+  const CH_COLORS = {'微信':'#1aad19','美团':'#ffc300','支付宝':'#1677ff','抖音':'#111','现金':'#ff6b9d','会员卡':'#662e9b'};
+  const byChannel={};
+  tl.forEach(c=>(c.pay||[]).forEach(p=>{
+    const k=p.method||'其他';
+    byChannel[k]=byChannel[k]||{n:0,sum:0};
+    byChannel[k].n++; byChannel[k].sum+=+p.amount||0;
+  }));
+  const chArr=Object.entries(byChannel).sort((a,b)=>b[1].sum-a[1].sum);
+  const chTotal=chArr.reduce((s,[,v])=>s+v.sum,0);
+  const chTbody=$('channelTbody');
+  if(chArr.length===0){ chTbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无收款数据</div></div></td></tr>`; }
+  else{
+    const maxCh=Math.max(...chArr.map(([,v])=>v.sum),1);
+    chTbody.innerHTML=chArr.map(([ch,v])=>{
+      const pct=chTotal>0?Math.round(v.sum/chTotal*100):0;
+      const color=CH_COLORS[ch]||'#8a6f78';
+      return `<tr>
+        <td><span style="display:inline-flex;align-items:center;gap:6px;font-weight:700;"><span style="width:10px;height:10px;border-radius:3px;background:${color};display:inline-block;"></span>${ch}</span></td>
+        <td>${v.n} 笔</td><td class="fw-700 text-pink">¥${fmt(v.sum)}</td><td>${pct}%</td>
+        <td style="min-width:120px;"><div class="progress-bar"><div class="progress-fill" style="width:${v.sum/maxCh*100}%;background:${color};"></div></div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ===== 项目收入统计（本甲/甲片/建构/卸甲等）=====
+  const byItem={};
+  tl.forEach(c=>{
+    (c.itemDetail||[]).forEach(it=>{
+      if(!it.name || !(+it.amount>0)) return;
+      byItem[it.name]=byItem[it.name]||{n:0,sum:0};
+      byItem[it.name].n++; byItem[it.name].sum+=+it.amount||0;
+    });
+  });
+  const itArr=Object.entries(byItem).sort((a,b)=>b[1].sum-a[1].sum);
+  const itTotal=itArr.reduce((s,[,v])=>s+v.sum,0);
+  const itTbody=$('itemIncomeTbody');
+  if(itArr.length===0){ itTbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无项目数据</div></div></td></tr>`; }
+  else{
+    const maxIt=Math.max(...itArr.map(([,v])=>v.sum),1);
+    itTbody.innerHTML=itArr.map(([item,v])=>{
+      const pct=itTotal>0?Math.round(v.sum/itTotal*100):0;
+      return `<tr>
+        <td class="fw-700">${item}</td>
+        <td>${v.n} 次</td><td class="fw-700 text-pink">¥${fmt(v.sum)}</td><td>${pct}%</td>
+        <td style="min-width:120px;"><div class="progress-bar"><div class="progress-fill" style="width:${v.sum/maxIt*100}%;"></div></div></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ===== 每日收入明细（含当日成本与利润）=====
+  const byDay={};
+  tl.forEach(c=>{
+    const d=String(c.time||'').slice(0,10);
+    if(!d) return;
+    byDay[d]=byDay[d]||{n:0,sum:0};
+    byDay[d].n++; byDay[d].sum+=+c.amount||0;
+  });
+  costInRange.forEach(c=>{
+    const d=String(c.date||'').slice(0,10);
+    if(!d) return;
+    byDay[d]=byDay[d]||{n:0,sum:0,cost:0};
+    byDay[d].cost=(byDay[d].cost||0)+(+c.amount||0);
+  });
+  const dayArr=Object.entries(byDay).sort((a,b)=>b[0].localeCompare(a[0]));
+  const dayTbody=$('dailyIncomeTbody');
+  if(dayArr.length===0){ dayTbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无数据</div></div></td></tr>`; }
+  else{
+    dayTbody.innerHTML=dayArr.map(([d,v])=>{
+      const dc=v.cost||0, dp=v.sum-dc;
+      return `<tr>
+        <td>${d.slice(5)}</td>
+        <td>${v.n} 单</td>
+        <td class="fw-700 text-pink">¥${fmt(v.sum)}</td>
+        <td style="color:var(--warning);">¥${fmt(dc)}</td>
+        <td class="fw-700" style="color:${dp>=0?'var(--success)':'#e5484d'};">¥${fmt(dp)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ===== 技师收入明细 =====
   const ti2=techs.map(t=>{ const orders=tl.filter(c=>c.techId==t.id); const income=orders.reduce((s,c)=>s+(+c.amount||0),0); return {...t,orders:orders.length,income}; }).filter(t=>t.orders>0||t.status!=='offline').sort((a,b)=>b.income-a.income);
   const tbody=$('incomeTbody');
   if(ti2.length===0){ tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无收入数据</div></div></td></tr>`; }
@@ -2377,6 +2985,286 @@ function renderIncome(){
     <td><span class="member-avatar" style="background:${colorOf(t.name)}">${initial(t.name)}</span>${t.name}<br><span class="text-light" style="font-size:11px;margin-left:42px;">${t.level}</span></td>
     <td>${t.orders} 单</td><td class="fw-700 text-pink">¥${fmt(t.income)}</td><td>${pct}%</td>
     <td style="min-width:120px;"><div class="progress-bar"><div class="progress-fill" style="width:${t.income/maxI*100}%"></div></div></td></tr>`; }).join(''); }
+}
+
+// ===== 日期区间筛选（消费/收入共用）=====
+function matchDateRange(time, startStr, endStr) {
+  if (!startStr && !endStr) return true;
+  const d = String(time || '').slice(0,10); // YYYY-MM-DD
+  if (!d) return false;
+  if (startStr && d < startStr) return false;
+  if (endStr && d > endStr) return false;
+  return true;
+}
+function clearConsumeRange(){
+  $('consumeRangeStart').value=''; $('consumeRangeEnd').value='';
+  renderConsume();
+}
+function clearIncomeRange(){
+  $('incomeRangeStart').value=''; $('incomeRangeEnd').value='';
+  renderIncome();
+}
+function clearBookingRange(){
+  $('bkRangeStart').value=''; $('bkRangeEnd').value='';
+  renderCalendar();
+}
+
+// ===== 农历转换（简化版，1900-2100）=====
+const LUNAR_INFO = [0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,0x06ca0,0x0b550,0x15355,0x04da0,0x0a5b0,0x14573,0x052b0,0x0a9a8,0x0e950,0x06aa0,0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b6a0,0x195a6,0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x055c0,0x0ab60,0x096d5,0x092e0,0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,0x14b63,0x09370,0x049f8,0x04970,0x064b0,0x168a6,0x0ea50,0x06b20,0x1a6c4,0x0aae0,0x0a2e0,0x0d2e3,0x0c960,0x0d557,0x0d4a0,0x0da50,0x05d55,0x056a0,0x0a6d0,0x055d4,0x052d0,0x0a9b8,0x0a950,0x0b4a0,0x0b6a6,0x0ad50,0x055a0,0x0aba4,0x0a5b0,0x052b0,0x0b273,0x06930,0x07337,0x06aa0,0x0ad50,0x14b55,0x04b60,0x0a570,0x054e4,0x0d160,0x0e968,0x0d520,0x0daa0,0x16aa6,0x056d0,0x04ae0,0x0a9d4,0x0a2d0,0x0d150,0x0f252,0x0d520];
+const LUNAR_MONTH = ['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+const LUNAR_DAY = ['一','二','三','四','五','六','七','八','九','十','初十','廿','卅'];
+function lunarDayName(d){
+  if(d===10) return '初十';
+  if(d===20) return '二十';
+  if(d===30) return '三十';
+  if(d<10) return '初'+LUNAR_DAY[d-1];
+  if(d<20) return '十'+LUNAR_DAY[d-11];
+  if(d<30) return '廿'+LUNAR_DAY[d-21];
+  return '';
+}
+// 返回节日名称（基于真实农历，非公历硬编码）
+function solarToLunar(y, m, d){
+  const lu = solar2Lunar(y, m, d);
+  if (!lu || !lu.month) return '';
+  // 春节：正月初一
+  if (lu.month===1 && lu.day===1 && !lu.leap) return '春节';
+  // 元宵：正月十五
+  if (lu.month===1 && lu.day===15 && !lu.leap) return '元宵';
+  // 端午：五月初五
+  if (lu.month===5 && lu.day===5 && !lu.leap) return '端午';
+  // 七夕：七月初七
+  if (lu.month===7 && lu.day===7 && !lu.leap) return '七夕';
+  // 中秋：八月十五
+  if (lu.month===8 && lu.day===15 && !lu.leap) return '中秋';
+  // 重阳：九月初九
+  if (lu.month===9 && lu.day===9 && !lu.leap) return '重阳';
+  // 腊八：腊月初八
+  if (lu.month===12 && lu.day===8 && !lu.leap) return '腊八';
+  // 除夕：农历年最后一天（腊月最后一天）
+  // 通过查下一天是否是正月初一来判断
+  if (lu.month===12 && !lu.leap) {
+    // 检查下一天是不是正月初一
+    const next = new Date(y, m-1, d+1);
+    const nextLu = solar2Lunar(next.getFullYear(), next.getMonth()+1, next.getDate());
+    if (nextLu && nextLu.month===1 && nextLu.day===1 && !nextLu.leap) return '除夕';
+  }
+  // 公历固定节日（非农历）
+  if (m===2 && d===14) return '情人节';
+  if (m===3 && d===8) return '妇女节';
+  if (m===5 && d===1) return '劳动节';
+  if (m===10 && d===1) return '国庆';
+  if (m===12 && d===25) return '圣诞';
+  return '';
+}
+
+// ===== 真正的农历转换（基于 LUNAR_INFO 表，1900-2100）=====
+// LUNAR_INFO 21位编码（按 solarlunar 库规范）：
+//   bit 0-3：闰月月份（0=无闰月）
+//   bit 4-15：12个普通月大小（bit15=1月, bit14=2月, ..., bit4=12月；1=30天/0=29天）
+//   bit 16：闰月大小（1=30天/0=29天）
+// 返回 {year, month, day, leap}
+function solar2Lunar(y, m, d){
+  if (y < 1900 || y > 2099) return {year:0, month:0, day:0, leap:false};
+  const baseDate = new Date(1900, 0, 31); // 农历1900年正月初一 = 公历1900-01-31
+  const targetDate = new Date(y, m-1, d);
+  let offset = Math.floor((targetDate.getTime() - baseDate.getTime()) / 86400000);
+  if (offset < 0) return {year:0, month:0, day:0, leap:false};
+  // 找到农历年
+  let lunarYear = 1900;
+  while (lunarYear < 2100) {
+    const yd = lYearDays(lunarYear);
+    if (offset < yd) break;
+    offset -= yd;
+    lunarYear++;
+  }
+  if (lunarYear > 2099) return {year:0, month:0, day:0, leap:false};
+  // 在该年内逐月定位
+  const leap = leapMonth(lunarYear);
+  let isLeap = false;
+  for (let mi=1; mi<=12; mi++) {
+    // 处理闰月：如果当前月=leap 月，先尝试普通月
+    let days = monthDays(lunarYear, mi);
+    if (offset < days) {
+      return {year: lunarYear, month: mi, day: offset+1, leap: false};
+    }
+    offset -= days;
+    // 处理闰月（在 mi=leap 之后插入闰月）
+    if (mi === leap) {
+      let leapD = leapDays(lunarYear);
+      if (offset < leapD) {
+        return {year: lunarYear, month: mi, day: offset+1, leap: true};
+      }
+      offset -= leapD;
+    }
+  }
+  return {year: lunarYear, month: 0, day: 0, leap: false};
+}
+function lYearDays(y){
+  let sum = 348; // 12 * 29
+  const info = LUNAR_INFO[y - 1900];
+  for (let i=0x8000; i>=0x10; i >>= 1) {
+    if (info & i) sum += 1;
+  }
+  return sum + leapDays(y);
+}
+function leapMonth(y){
+  return LUNAR_INFO[y - 1900] & 0xf;
+}
+function leapDays(y){
+  if (leapMonth(y)) {
+    return LUNAR_INFO[y - 1900] & 0x10000 ? 30 : 29;
+  }
+  return 0;
+}
+function monthDays(y, m){
+  if (m < 1 || m > 12) return -1;
+  return LUNAR_INFO[y - 1900] & (0x10000 >> m) ? 30 : 29;
+}
+
+// 简化版：仅返回农历日名（如"初一"/"廿一"）
+function getLunarDayName(y, m, d){
+  const lu = solar2Lunar(y, m, d);
+  if (!lu || !lu.day) return '';
+  return lunarDayName(lu.day);
+}
+
+// ===== 预约日历视图 =====
+let calView = 'month'; // day | week | month
+let bkTab = 'all'; // all | today | month | pending
+let bkSelectedDay = null; // YYYY-MM-DD
+
+function setCalView(v){
+  calView = v;
+  document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view===v));
+  renderCalendar();
+}
+function setBkTab(t){
+  bkTab = t;
+  document.querySelectorAll('[data-bktab]').forEach(b => b.classList.toggle('active', b.dataset.bktab===t));
+  renderCalendar();
+}
+
+function filteredBookings(){
+  const kw = $('bkSearch').value.trim().toLowerCase();
+  const today = new Date().toISOString().slice(0,10);
+  const ym = today.slice(0,7);
+  const rs = $('bkRangeStart').value;
+  const re = $('bkRangeEnd').value;
+  return bookings.filter(b => {
+    // 日期区间筛选
+    if (rs && String(b.time||'').slice(0,10) < rs) return false;
+    if (re && String(b.time||'').slice(0,10) > re) return false;
+    // tab 筛选
+    if (bkTab==='today' && !String(b.time||'').startsWith(today)) return false;
+    if (bkTab==='month' && !String(b.time||'').startsWith(ym)) return false;
+    if (bkTab==='pending' && b.status!=='pending') return false;
+    // 关键词
+    if (kw) {
+      const m = (memberName(b.memberId)||'').toLowerCase();
+      const t = techName(b.techId).toLowerCase();
+      if (!m.includes(kw) && !t.includes(kw) && !(b.item||'').toLowerCase().includes(kw)) return false;
+    }
+    return true;
+  });
+}
+
+function getBookingsOfDay(dayStr){
+  return filteredBookings().filter(b => String(b.time||'').startsWith(dayStr))
+    .sort((a,b) => String(a.time).localeCompare(String(b.time)));
+}
+
+function renderCalendar(){
+  const grid = $('calendarGrid');
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
+  const year = today.getFullYear();
+  const month = today.getMonth(); // 0-11
+  // 计算当月网格（42格 = 6行）
+  const first = new Date(year, month, 1);
+  const startWeekday = first.getDay(); // 0=Sun
+  const startDate = new Date(year, month, 1 - startWeekday);
+  const cells = [];
+  for (let i=0; i<42; i++) {
+    const d = new Date(startDate);
+    d.setDate(startDate.getDate() + i);
+    cells.push(d);
+  }
+  grid.innerHTML = cells.map(d => {
+    const ymd = d.toISOString().slice(0,10);
+    const isOut = d.getMonth() !== month;
+    const isToday = ymd === todayStr;
+    const isSel = bkSelectedDay === ymd;
+    const dayBookings = getBookingsOfDay(ymd);
+    const festival = solarToLunar(d.getFullYear(), d.getMonth()+1, d.getDate());
+    const lu = solar2Lunar(d.getFullYear(), d.getMonth()+1, d.getDate());
+    // 农历显示逻辑：节日 > 初一（显示月份）> 农历日名
+    let lunar = '';
+    if (festival) {
+      lunar = festival;
+    } else if (lu.day === 1) {
+      lunar = (lu.leap ? '闰' : '') + LUNAR_MONTH[lu.month-1] + '月';
+    } else {
+      lunar = lunarDayName(lu.day);
+    }
+    const dayNum = d.getDate();
+    const visible = dayBookings.slice(0, 3);
+    const more = dayBookings.length - visible.length;
+    const pills = visible.map(b => {
+      const t = String(b.time || '').slice(11,16);
+      const m = String(memberName(b.memberId) || '');
+      const tech = String(techName(b.techId) || '');
+      // 简称：取会员名首字 + 技师首字（如 "11:00 张李"）；如无技师只显示会员
+      let short = '';
+      const m1 = m ? m.slice(0,1) : '';
+      const t1 = tech ? tech.slice(0,1) : '';
+      short = m1 + t1;
+      return `<div class="event-pill ${b.status}" title="${t} ${m} - ${tech||'未指定'} · ${b.item}">${t} ${short}</div>`;
+    }).join('');
+    const moreHtml = more>0 ? `<div class="event-more">+${more} 更多</div>` : '';
+    return `<div class="calendar-cell ${isOut?'outside':''} ${isToday?'today':''} ${isSel?'selected':''} weekend-${d.getDay()}" data-day="${ymd}" onclick="selectCalDay('${ymd}')">
+      <div class="cell-head"><span class="cell-day">${dayNum}</span><span class="cell-lunar">${lunar}</span></div>
+      ${pills}${moreHtml}
+    </div>`;
+  }).join('');
+  // 渲染底部详情
+  renderBkDayDetail();
+}
+
+function selectCalDay(ymd){
+  bkSelectedDay = ymd;
+  renderCalendar();
+}
+
+function renderBkDayDetail(){
+  const box = $('bkDayDetail');
+  if (!bkSelectedDay) { box.innerHTML = '<div class="empty">点击日期查看预约</div>'; return; }
+  const list = getBookingsOfDay(bkSelectedDay);
+  const [y,m,d] = bkSelectedDay.split('-');
+  const date = new Date(y, +m-1, +d);
+  const week = ['日','一','二','三','四','五','六'][date.getDay()];
+  const title = `${+m}月${+d}日 周${week}`;
+  if (!list.length) {
+    box.innerHTML = `<h4>${title}</h4><div class="empty">当天无预约</div>`;
+    return;
+  }
+  const rows = list.map(b => {
+    const t = String(b.time || '').slice(11,16);
+    const m = memberName(b.memberId);
+    const tech = techName(b.techId) || '未指定';
+    const st = b.status==='confirmed' ? '<span class="tag green">已确认</span>' : '<span class="tag orange">待确认</span>';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;">
+      <div style="flex:1;">
+        <div style="font-weight:600;color:var(--text);">${t} · ${m}</div>
+        <div style="font-size:12px;color:var(--text-light);">${b.item} · ${tech}</div>
+      </div>
+      <div>${st}</div>
+      <div style="display:flex;gap:4px;">
+        ${b.status==='pending' ? `<button class="btn btn-ghost btn-sm" onclick="confirmBooking(${b.id})">确认</button>` : ''}
+        <button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})">取消</button>
+      </div>
+    </div>`;
+  }).join('');
+  box.innerHTML = `<h4>${title} · 共 ${list.length} 个预约</h4>${rows}`;
 }
 
 function renderDate(){ const d=new Date(); const week=['日','一','二','三','四','五','六'][d.getDay()]; $('todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${week}`; }
@@ -2392,7 +3280,7 @@ renderMembers();
 // 注册 Service Worker（PWA 离线可用 + 主屏幕应用）
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/yeye-nail/sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 </script>
