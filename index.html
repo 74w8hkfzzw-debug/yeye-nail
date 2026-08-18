@@ -1379,24 +1379,53 @@ input[type="checkbox"] {
     <div class="stat-grid">
       <div class="stat-card orange">
         <div class="stat-icon"><svg><use href="#i-receipt"/></svg></div>
-        <div class="stat-label" id="costRangeLabel">成本（本月）</div>
-        <div class="stat-value">¥<span id="costRangeTotal">0</span></div>
+        <div class="stat-label" id="matCostLabel">材料成本（本月·自动）</div>
+        <div class="stat-value">¥<span id="matCostTotal">0</span></div>
+        <div class="stat-sub" style="font-size:11px;color:var(--text-light);margin-top:2px;">按消费项目×单价自动算</div>
       </div>
       <div class="stat-card pink">
         <div class="stat-icon"><svg><use href="#i-cal"/></svg></div>
-        <div class="stat-label">本月成本</div>
-        <div class="stat-value">¥<span id="costMonthTotal">0</span></div>
+        <div class="stat-label" id="otherCostLabel">其他成本（手动记录）</div>
+        <div class="stat-value">¥<span id="otherCostTotal">0</span></div>
+        <div class="stat-sub" id="otherCostCount" style="font-size:11px;color:var(--text-light);margin-top:2px;"></div>
       </div>
       <div class="stat-card blue">
         <div class="stat-icon"><svg><use href="#i-card"/></svg></div>
-        <div class="stat-label">成本笔数</div>
-        <div class="stat-value" id="costCount">0</div>
+        <div class="stat-label" id="grossLabel">毛利（收入−材料）</div>
+        <div class="stat-value">¥<span id="grossValue">0</span></div>
+        <div class="stat-sub" id="grossDetail" style="font-size:11px;color:var(--text-light);margin-top:2px;"></div>
       </div>
       <div class="stat-card green">
         <div class="stat-icon"><svg><use href="#i-trend-up"/></svg></div>
-        <div class="stat-label" id="profitLabel">本月利润</div>
+        <div class="stat-label" id="profitLabel">利润（再−其他成本）</div>
         <div class="stat-value">¥<span id="profitValue">0</span></div>
         <div class="stat-sub" id="profitDetail" style="font-size:11px;color:var(--text-light);margin-top:2px;"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">材料成本单价设置</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>项目</th>
+              <th>材料单价（元）</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="materialTbody"></tbody>
+        </table>
+      </div>
+      <div style="padding:12px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <input type="text" id="newMatName" placeholder="新项目名" style="flex:1;min-width:100px;border:1px solid #ffd6e5;border-radius:8px;padding:8px 12px;font-size:13px;">
+        <input type="number" id="newMatPrice" placeholder="单价" min="0" step="1" style="width:90px;border:1px solid #ffd6e5;border-radius:8px;padding:8px 12px;font-size:13px;">
+        <button class="btn btn-primary btn-sm" onclick="addMaterial()"><svg><use href="#i-add"/></svg> 添加</button>
+      </div>
+      <div style="padding:0 14px 12px;font-size:12px;color:var(--text-light);line-height:1.6;">
+        💡 修改单价立即生效并云端同步。每笔消费做过的项目按单价自动计入材料成本，无需手动记。
       </div>
     </div>
 
@@ -1575,7 +1604,7 @@ input[type="checkbox"] {
               <th>日期</th>
               <th>订单数</th>
               <th>收入</th>
-              <th>当日成本</th>
+              <th>当日成本（材料+其他）</th>
               <th>当日利润</th>
             </tr>
           </thead>
@@ -1863,6 +1892,9 @@ let consumes = JSON.parse(localStorage.getItem('yeye_consumes') || '[]');
 let bookings = JSON.parse(localStorage.getItem('yeye_bookings') || '[]');
 let techs = JSON.parse(localStorage.getItem('yeye_techs') || '[]');
 let costs = JSON.parse(localStorage.getItem('yeye_costs') || '[]');
+// 材料成本单价表（元）：每笔消费按 项目×单价 自动计入材料成本
+const DEFAULT_MATERIALS = {'本甲':5,'卸甲':10,'建构':15,'甲片':15,'封层':8,'贴钻':10,'饰品':5};
+let materials = (()=>{ try { const v=JSON.parse(localStorage.getItem('yeye_materials')); return (v && typeof v==='object') ? v : {...DEFAULT_MATERIALS}; } catch(e){ return {...DEFAULT_MATERIALS}; } })();
 
 // ===== 云端同步（GitHub Contents API 当数据库）=====
 const CLOUD = {
@@ -1951,6 +1983,7 @@ async function pullFromCloud() {
       bookings = (decoded.bookings || []).map(fixEncoding);
       techs = (decoded.techs || []).map(fixEncoding);
       costs = (decoded.costs || []).map(fixEncoding);
+      if (decoded.materials && typeof decoded.materials === 'object') materials = decoded.materials;
       saveLocalOnly();
       renderAll();
     }
@@ -1972,7 +2005,7 @@ async function pushToCloud() {
   CLOUD.busy = true;
   setSyncStatus('syncing', '上传中');
   try {
-    const payload = { members, consumes, bookings, techs, costs };
+    const payload = { members, consumes, bookings, techs, costs, materials };
     // 使用 TextEncoder 保证中文/表情无损
     const bytes = new TextEncoder().encode(JSON.stringify(payload));
     let binary = '';
@@ -2015,6 +2048,7 @@ function saveLocalOnly() {
   localStorage.setItem('yeye_bookings', JSON.stringify(bookings));
   localStorage.setItem('yeye_techs', JSON.stringify(techs));
   localStorage.setItem('yeye_costs', JSON.stringify(costs));
+  localStorage.setItem('yeye_materials', JSON.stringify(materials));
 }
 
 // 防抖推送：多次快速保存只推一次
@@ -2768,7 +2802,59 @@ function filteredCosts(){
   });
 }
 
+// 某笔消费的材料成本（按 itemDetail 项目 × 单价）
+function materialCostOf(consume){
+  return (consume.itemDetail || []).reduce((s, it) => {
+    const price = +materials[it.name] || 0;
+    return s + (price > 0 ? price : 0);
+  }, 0);
+}
+
+// 材料单价表 CRUD
+function renderMaterials(){
+  const entries = Object.entries(materials).sort((a,b)=>a[0].localeCompare(b[0],'zh'));
+  const tb = $('materialTbody');
+  if (entries.length === 0) {
+    tb.innerHTML = `<tr><td colspan="3"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂未设置项目单价</div></div></td></tr>`;
+    return;
+  }
+  tb.innerHTML = entries.map(([name, price]) => {
+    const safeName = String(name).replace(/'/g, "\\'");
+    return `<tr>
+      <td class="fw-700">${name}</td>
+      <td><input type="number" value="${price}" min="0" step="1" onchange="updateMaterialPrice('${safeName}', this.value)" style="width:90px;border:1px solid #ffd6e5;border-radius:8px;padding:6px 10px;font-size:14px;font-weight:700;color:var(--ink);"></td>
+      <td><button class="btn btn-ghost btn-sm" style="color:var(--danger,#e5484d);" onclick="deleteMaterial('${safeName}')">删除</button></td>
+    </tr>`;
+  }).join('');
+}
+function updateMaterialPrice(name, val){
+  if (!(name in materials)) return;
+  materials[name] = +val || 0;
+  saveData();
+  renderCosts();
+}
+function addMaterial(){
+  const name = $('newMatName').value.trim();
+  const price = +$('newMatPrice').value || 0;
+  if (!name) { toast('请填写项目名称'); return; }
+  if (price <= 0) { toast('请填写单价'); return; }
+  materials[name] = price;
+  $('newMatName').value = ''; $('newMatPrice').value = '';
+  saveData();
+  renderMaterials();
+  renderCosts();
+  toast('已添加「' + name + '」单价 ' + price + ' 元');
+}
+function deleteMaterial(name){
+  if (!confirm('删除「' + name + '」的单价？\n（历史消费将不再计入该项材料成本）')) return;
+  delete materials[name];
+  saveData();
+  renderMaterials();
+  renderCosts();
+}
+
 function renderCosts(){
+  renderMaterials();
   const today=new Date().toISOString().slice(0,10);
   const ym=today.slice(0,7);
   const rs=$('costRangeStart')?.value||'', re=$('costRangeEnd')?.value||'';
@@ -2776,35 +2862,39 @@ function renderCosts(){
   // 无区间时默认统计本月
   const effStart = rs || (re ? '' : ym + '-01');
   const effEnd = re || (rs ? '' : today);
-  const inRange = costs.filter(c=>{
-    const d=String(c.date||'').slice(0,10);
+  const inRange = arr => arr.filter(c=>{
+    const d=String(c.date||c.time||'').slice(0,10);
     if(!d) return false;
     if(effStart && d<effStart) return false;
     if(effEnd && d>effEnd) return false;
     return true;
   });
-  const rangeTotal=inRange.reduce((s,c)=>s+(+c.amount||0),0);
-  const monthTotal=costs.filter(c=>String(c.date||'').startsWith(ym)).reduce((s,c)=>s+(+c.amount||0),0);
-  // 利润 = 同期收入 - 同期成本
-  const incomeRange=consumes.filter(c=>{
-    const d=String(c.time||'').slice(0,10);
-    if(!d) return false;
-    if(effStart && d<effStart) return false;
-    if(effEnd && d>effEnd) return false;
-    return true;
-  });
-  const incomeTotal=incomeRange.reduce((s,c)=>s+(+c.amount||0),0);
-  const profit=incomeTotal-rangeTotal;
+  // 收入（消费）
+  const consumeInRange = inRange(consumes);
+  const incomeTotal = consumeInRange.reduce((s,c)=>s+(+c.amount||0),0);
+  // 材料成本（自动：每笔消费 itemDetail × 单价）
+  const matCost = consumeInRange.reduce((s,c)=>s+materialCostOf(c),0);
+  // 其他成本（手动记录）
+  const costInRange = inRange(costs);
+  const otherCost = costInRange.reduce((s,c)=>s+(+c.amount||0),0);
+  const gross = incomeTotal - matCost;       // 毛利 = 收入 − 材料
+  const profit = gross - otherCost;          // 利润 = 毛利 − 其他成本
+  const scopeName = hasRange ? '区间' : '本月';
 
-  $('costRangeLabel').textContent = hasRange ? '成本（区间）' : '成本（本月）';
-  $('costRangeTotal').textContent=fmt(rangeTotal);
-  $('costMonthTotal').textContent=fmt(monthTotal);
-  $('costCount').textContent=costs.length;
-  $('profitLabel').textContent = hasRange ? '区间利润' : '本月利润';
+  $('matCostLabel').textContent = `材料成本（${scopeName}·自动）`;
+  $('matCostTotal').textContent=fmt(matCost);
+  $('otherCostLabel').textContent = `其他成本（${scopeName}·手动）`;
+  $('otherCostTotal').textContent=fmt(otherCost);
+  $('otherCostCount').textContent = `${costInRange.length} 笔记录`;
+  $('grossLabel').textContent = `毛利（${scopeName}）`;
+  $('grossValue').textContent=fmt(gross);
+  $('grossDetail').textContent=`收入 ¥${fmt(incomeTotal)} − 材料 ¥${fmt(matCost)}`;
+  $('profitLabel').textContent = `利润（${scopeName}）`;
   $('profitValue').textContent=fmt(profit);
-  $('profitDetail').textContent=`收入 ¥${fmt(incomeTotal)} − 成本 ¥${fmt(rangeTotal)}${incomeTotal>0?` · 利润率 ${Math.round(profit/incomeTotal*100)}%`:''}`;
+  $('profitDetail').textContent=`毛利 ¥${fmt(gross)} − 其他 ¥${fmt(otherCost)}${incomeTotal>0?` · 利润率 ${Math.round(profit/incomeTotal*100)}%`:''}`;
 
   // 明细列表（分类过滤也生效）
+  const cat=$('costCatFilter')?.value||'';
   const list=filteredCosts().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const tbody=$('costTbody');
   if(list.length===0){ tbody.innerHTML=`<tr><td colspan="6"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无成本记录</div></div></td></tr>`; }
@@ -2823,11 +2913,11 @@ function renderCosts(){
   const byCat={};
   list.forEach(c=>{ const k=c.category||'其他'; byCat[k]=byCat[k]||{n:0,sum:0}; byCat[k].n++; byCat[k].sum+=+c.amount||0; });
   const catArr=Object.entries(byCat).sort((a,b)=>b[1].sum-a[1].sum);
-  const catTotal=catArr.reduce((s,[,v])=>s+v.sum,0);
+  const catTotal=catArr.reduce((s,v)=>s+v[1].sum,0);
   const catTbody=$('costCatTbody');
   if(catArr.length===0){ catTbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无数据</div></div></td></tr>`; }
   else{
-    const maxC=Math.max(...catArr.map(([,v])=>v.sum),1);
+    const maxC=Math.max(...catArr.map(v=>v[1].sum),1);
     catTbody.innerHTML=catArr.map(([cat,v])=>{
       const pct=catTotal>0?Math.round(v.sum/catTotal*100):0;
       return `<tr>
@@ -2840,10 +2930,12 @@ function renderCosts(){
     }).join('');
   }
 }
+
 function clearCostRange(){
   $('costRangeStart').value=''; $('costRangeEnd').value='';
   renderCosts();
 }
+
 
 function renderIncome(){
   const today=new Date().toISOString().slice(0,10);
@@ -2881,7 +2973,7 @@ function renderIncome(){
   const diff=tiToday-yi;
   $('todayIncomeTrend').textContent=diff>=0?`今日 ¥${fmt(tiToday)} · 较昨日 ↑ ¥${fmt(diff)}`:`今日 ¥${fmt(tiToday)} · 较昨日 ↓ ¥${fmt(-diff)}`;
 
-  // ===== 利润概览（与成本页同口径）=====
+  // ===== 利润概览（与成本页同口径：材料+其他）=====
   const costInRange=costs.filter(c=>{
     const d=String(c.date||'').slice(0,10);
     if(!d) return false;
@@ -2889,13 +2981,15 @@ function renderIncome(){
     if(effEnd && d>effEnd) return false;
     return true;
   });
-  const costTotal=costInRange.reduce((s,c)=>s+(+c.amount||0),0);
+  const otherCostTotal=costInRange.reduce((s,c)=>s+(+c.amount||0),0);
+  const matCostTotal=tl.reduce((s,c)=>s+materialCostOf(c),0);
+  const costTotal=matCostTotal+otherCostTotal;
   const profit=ti-costTotal;
   $('profitPanelTitle').textContent = hasRange ? '利润概览（区间）' : '利润概览（本月）';
   $('pfIncome').textContent=fmt(ti);
   $('pfCost').textContent=fmt(costTotal);
   $('pfProfit').textContent=fmt(profit);
-  $('pfRate').textContent = ti>0 ? `利润率 ${Math.round(profit/ti*100)}%` : '';
+  $('pfRate').textContent = ti>0 ? `利润率 ${Math.round(profit/ti*100)}% · 材料 ¥${fmt(matCostTotal)} + 其他 ¥${fmt(otherCostTotal)}` : '';
 
   // ===== 收款渠道统计 =====
   const CH_COLORS = {'微信':'#1aad19','美团':'#ffc300','支付宝':'#1677ff','抖音':'#111','现金':'#ff6b9d','会员卡':'#662e9b'};
@@ -2955,11 +3049,17 @@ function renderIncome(){
     byDay[d]=byDay[d]||{n:0,sum:0};
     byDay[d].n++; byDay[d].sum+=+c.amount||0;
   });
+  tl.forEach(c=>{
+    const d=String(c.time||'').slice(0,10);
+    if(!d) return;
+    byDay[d]=byDay[d]||{n:0,sum:0,cost:0};
+    byDay[d].cost=(byDay[d].cost||0)+materialCostOf(c); // 材料成本（自动）
+  });
   costInRange.forEach(c=>{
     const d=String(c.date||'').slice(0,10);
     if(!d) return;
     byDay[d]=byDay[d]||{n:0,sum:0,cost:0};
-    byDay[d].cost=(byDay[d].cost||0)+(+c.amount||0);
+    byDay[d].cost=(byDay[d].cost||0)+(+c.amount||0); // 其他成本（手动）
   });
   const dayArr=Object.entries(byDay).sort((a,b)=>b[0].localeCompare(a[0]));
   const dayTbody=$('dailyIncomeTbody');

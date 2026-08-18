@@ -1,5 +1,5 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v4'; // 升版本号强制清旧缓存（v4：新增成本记录 + 收入详情）
+const CACHE_NAME = 'yeye-nail-v5'; // 升版本号强制清旧缓存（v5：新增材料成本单价设置 + 利润联动）
 const ASSETS = [
   './',
   './index.html',
