@@ -1,5 +1,5 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v8'; // 升版本号强制清旧缓存（v8：整体风格深棕+焦糖橙+米白主题，重画椰子图标）
+const CACHE_NAME = 'yeye-nail-v9'; // 升版本号强制清旧缓存（v9：侧栏深棕+米色横条+焦糖橙logo+深中棕选中态）
 const ASSETS = [
   './',
   './index.html',
