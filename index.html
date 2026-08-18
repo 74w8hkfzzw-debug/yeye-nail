@@ -1446,9 +1446,12 @@ input[type="checkbox"] {
       <button class="clear-date" id="costRangeClear" onclick="clearCostRange()">清除区间</button>
       <select id="costCatFilter" onchange="renderCosts()" style="margin-left:8px;border:1px solid #ffd6e5;border-radius:8px;padding:4px 8px;font-size:13px;color:var(--ink);background:#fff;">
         <option value="">全部分类</option>
+        <option>钻</option>
+        <option>甲油胶</option>
+        <option>美甲耗材</option>
+        <option>耗材采购</option>
         <option>房租水电</option>
         <option>员工工资</option>
-        <option>耗材采购</option>
         <option>营销推广</option>
         <option>其他</option>
       </select>
@@ -1793,6 +1796,10 @@ input[type="checkbox"] {
         <label class="check-pill"><input type="checkbox" value="甲片"> 甲片</label>
         <label class="check-pill"><input type="checkbox" value="卸甲"> 卸甲</label>
         <label class="check-pill"><input type="checkbox" value="建构"> 建构</label>
+        <label class="check-pill"><input type="checkbox" value="本甲纯色"> 本甲纯色</label>
+        <label class="check-pill"><input type="checkbox" value="本甲复杂款式"> 本甲复杂款式</label>
+        <label class="check-pill"><input type="checkbox" value="甲片纯色"> 甲片纯色</label>
+        <label class="check-pill"><input type="checkbox" value="甲片复杂款式"> 甲片复杂款式</label>
       </div>
       <div class="selected-tags" id="bConditionTags" style="display:none;"></div>
     </div>
@@ -1864,6 +1871,7 @@ input[type="checkbox"] {
       <div class="modal-title" id="costModalTitle">记一笔成本</div>
       <button class="modal-close" onclick="closeModal('costModal')">×</button>
     </div>
+    <input type="hidden" id="costEditId">
     <div class="form-group">
       <label>项目名称 *</label>
       <input type="text" id="cName" placeholder="如：甲油胶采购 / 8月房租 / 美团推广">
@@ -1875,6 +1883,9 @@ input[type="checkbox"] {
     <div class="form-group">
       <label>分类</label>
       <select id="cCategory">
+        <option>钻</option>
+        <option>甲油胶</option>
+        <option>美甲耗材</option>
         <option>耗材采购</option>
         <option>房租水电</option>
         <option>员工工资</option>
@@ -2772,6 +2783,9 @@ function deleteTech(id){ if(!confirm('确定删除该美甲师吗？')) return; 
 
 // ===== 成本记录 =====
 const COST_CATS = {
+  '钻':'pink',
+  '甲油胶':'blue',
+  '美甲耗材':'green',
   '耗材采购':'orange',
   '房租水电':'blue',
   '员工工资':'pink',
@@ -2782,16 +2796,39 @@ function catTag(cat) { return `<span class="tag ${COST_CATS[cat]||'gray'}">${cat
 
 function openCostModal(){
   $('costModalTitle').textContent='记一笔成本';
+  $('costEditId').value='';
   $('cName').value=''; $('cAmount').value='';
   $('cCategory').selectedIndex=0;
   $('cDate').value=new Date().toISOString().slice(0,10);
   $('cNote').value='';
   openModal('costModal');
 }
+function editCost(id){
+  const c=costs.find(x=>x.id==id); if(!c) return;
+  $('costModalTitle').textContent='编辑成本';
+  $('costEditId').value=id;
+  $('cName').value=c.name||''; $('cAmount').value=c.amount||'';
+  // 分类选项若不存在（旧数据）则回退第一项
+  const sel=$('cCategory'); sel.value=c.category||'';
+  if(sel.value!==String(c.category||'')) sel.selectedIndex=0;
+  $('cDate').value=String(c.date||'').slice(0,10)||new Date().toISOString().slice(0,10);
+  $('cNote').value=c.note||'';
+  openModal('costModal');
+}
 function saveCost(){
   const name=$('cName').value.trim(), amount=+$('cAmount').value||0;
   if(!name){toast('请填写项目名称');return;}
   if(amount<=0){toast('请填写金额');return;}
+  const editId=$('costEditId').value;
+  if(editId){
+    const c=costs.find(x=>x.id==editId);
+    if(c){ Object.assign(c,{ name, amount, category:$('cCategory').value, date:$('cDate').value||c.date, note:$('cNote').value.trim() }); }
+    closeModal('costModal');
+    saveData();
+    renderCosts();
+    toast('成本已更新');
+    return;
+  }
   costs.push({
     id: Date.now(),
     name,
@@ -2948,7 +2985,7 @@ function renderCosts(){
       <td>${catTag(c.category)}</td>
       <td class="fw-700" style="color:var(--warning);">¥${fmt(c.amount)}</td>
       <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${c.note||''}">${c.note||'—'}</td>
-      <td><button class="btn btn-ghost btn-sm" style="color:var(--danger,#e5484d);" onclick="deleteCost(${c.id})">删除</button></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="editCost(${c.id})">编辑</button></td>
     </tr>`).join('');
   }
 
@@ -3122,7 +3159,7 @@ function renderIncome(){
   }
 
   // ===== 技师收入明细（含提成工资）=====
-  const ti2=techs.map(t=>{ const orders=tl.filter(c=>c.techId==t.id); const income=orders.reduce((s,c)=>s+(+c.amount||0),0); const rate=+t.rate||0; return {...t,orders,income,rate,comm:rate>0?income*rate/100:0}; }).filter(t=>t.orders>0||t.status!=='offline').sort((a,b)=>b.income-a.income);
+  const ti2=techs.map(t=>{ const orders=tl.filter(c=>c.techId==t.id); const income=orders.reduce((s,c)=>s+(+c.amount||0),0); const rate=+t.rate||0; return {...t,orders:orders.length,income,rate,comm:rate>0?income*rate/100:0}; }).filter(t=>t.orders>0||t.status!=='offline').sort((a,b)=>b.income-a.income);
   const tbody=$('incomeTbody');
   if(ti2.length===0){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无收入数据</div></div></td></tr>`; }
   else { const maxI=Math.max(...ti2.map(t=>t.income),1); tbody.innerHTML=ti2.map(t=>{ const pct=ti>0?Math.round(t.income/ti*100):0; return `<tr>
