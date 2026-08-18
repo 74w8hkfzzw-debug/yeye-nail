@@ -240,6 +240,7 @@ body {
 .stat-card.blue::before { background: var(--info); }
 .stat-card.green::before { background: var(--success); }
 .stat-card.orange::before { background: var(--warning); }
+.stat-card.purple::before { background: #8b5cf6; }
 
 .stat-icon {
   width: 44px; height: 44px;
@@ -251,11 +252,13 @@ body {
 .stat-card.blue .stat-icon { background: #d6e9ff; }
 .stat-card.green .stat-icon { background: #d9f7be; }
 .stat-card.orange .stat-icon { background: #fff1d6; }
+.stat-card.purple .stat-icon { background: #ede9fe; }
 .stat-icon svg { width: 22px; height: 22px; }
 .stat-card.pink .stat-icon svg { fill: var(--primary-dark); }
 .stat-card.blue .stat-icon svg { fill: var(--info); }
 .stat-card.green .stat-icon svg { fill: var(--success); }
 .stat-card.orange .stat-icon svg { fill: var(--warning); }
+.stat-card.purple .stat-icon svg { fill: #7c3aed; }
 
 .stat-label { color: var(--text-light); font-size: 13px; margin-bottom: 4px; }
 .stat-value { font-size: 26px; font-weight: 700; }
@@ -1383,6 +1386,12 @@ input[type="checkbox"] {
         <div class="stat-value">¥<span id="matCostTotal">0</span></div>
         <div class="stat-sub" style="font-size:11px;color:var(--text-light);margin-top:2px;">按消费项目×单价自动算</div>
       </div>
+      <div class="stat-card purple">
+        <div class="stat-icon"><svg><use href="#i-star"/></svg></div>
+        <div class="stat-label" id="commLabel">技师提成（本月·自动）</div>
+        <div class="stat-value">¥<span id="commTotal">0</span></div>
+        <div class="stat-sub" id="commDetail" style="font-size:11px;color:var(--text-light);margin-top:2px;">按每位美甲师业绩×提成比例</div>
+      </div>
       <div class="stat-card pink">
         <div class="stat-icon"><svg><use href="#i-cal"/></svg></div>
         <div class="stat-label" id="otherCostLabel">其他成本（手动记录）</div>
@@ -1615,15 +1624,17 @@ input[type="checkbox"] {
 
     <div class="panel">
       <div class="panel-header">
-        <div class="panel-title">美甲师收入明细</div>
+        <div class="panel-title">美甲师收入明细（含提成工资）</div>
       </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th>美甲师</th>
-              <th>今日订单</th>
-              <th>今日收入</th>
+              <th>订单</th>
+              <th>收入</th>
+              <th>提成比例</th>
+              <th>提成工资</th>
               <th>占比</th>
               <th>进度</th>
             </tr>
@@ -1831,6 +1842,11 @@ input[type="checkbox"] {
       <select class="form-select" id="tStatus">
         <option value="online">在线</option><option value="busy">服务中</option><option value="offline">离线</option>
       </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">提成比例（%）</label>
+      <input type="number" class="form-input" id="tRate" placeholder="如 40 表示业绩的 40% 作为提成工资" min="0" max="100" step="0.5">
+      <div style="font-size:11px;color:var(--text-light);margin-top:4px;">留空/0 = 不算提成。按每笔消费金额 × 比例自动算工资。</div>
     </div>
     <div class="form-actions">
       <button class="btn btn-ghost" onclick="closeModal('techModal')">取消</button>
@@ -2726,7 +2742,10 @@ function renderTechs(){
   $('topTech').textContent=(top && top.stats.monthIncome>0)?top.t.name:(techs.length?'—':'—');
   const grid=$('techGrid');
   if(techs.length===0){ grid.innerHTML=`<div class="empty-state" style="grid-column:1/-1;"><svg><use href="#i-empty"/></svg><div>暂无美甲师</div></div>`; return; }
-  grid.innerHTML=techWithStats.map(({t,stats})=>`<div class="tech-card">
+  grid.innerHTML=techWithStats.map(({t,stats})=>{
+    const rate=+t.rate||0;
+    const monthComm=rate>0?stats.monthIncome*rate/100:0;
+    return `<div class="tech-card">
     <div class="tech-status ${t.status}"></div>
     <div class="tech-avatar" style="background:linear-gradient(135deg, ${colorOf(t.name)}, ${colorOf(t.name+'x')})">${initial(t.name)}</div>
     <div class="tech-name">${t.name}</div>
@@ -2736,14 +2755,19 @@ function renderTechs(){
       <div class="tech-stat-item"><div class="num">¥${fmt(stats.todayIncome)}</div><div class="label">今日收入</div></div>
       <div class="tech-stat-item"><div class="num">¥${fmt(stats.monthIncome)}</div><div class="label">本月业绩</div></div>
     </div>
+    <div style="margin-top:10px;padding:8px 10px;border-radius:10px;background:${rate>0?'linear-gradient(135deg,#f6f2ff,#fdf0f5)':'var(--bg)'};font-size:12px;display:flex;justify-content:space-between;align-items:center;">
+      ${rate>0
+        ? `<span style="color:var(--text-light);">提成 <b style="color:#7c3aed;">${rate}%</b></span><span>本月提成工资 <b style="color:#7c3aed;">¥${fmt(monthComm)}</b></span>`
+        : `<span style="color:var(--text-light);">未设提成比例 · 编辑可设置</span><span style="color:var(--text-light);">—</span>`}
+    </div>
     <div style="margin-top:12px;display:flex;gap:6px;">
       <button class="btn btn-ghost btn-sm" style="flex:1;" onclick="editTech(${t.id})"><svg><use href="#i-edit"/></svg> 编辑</button>
       <button class="btn btn-danger btn-sm" style="flex:1;" onclick="deleteTech(${t.id})"><svg><use href="#i-delete"/></svg> 删除</button>
-    </div></div>`).join('');
+    </div></div>`; }).join('');
 }
-function openTechModal(){ $('techModalTitle').textContent='新增美甲师'; $('techEditId').value=''; $('tName').value='';$('tSkill').value='';$('tLevel').value='初级美甲师';$('tStatus').value='online'; openModal('techModal'); }
-function editTech(id){ const t=techs.find(x=>x.id==id); if(!t) return; $('techModalTitle').textContent='编辑美甲师'; $('techEditId').value=id; $('tName').value=t.name;$('tSkill').value=t.skill||'';$('tLevel').value=t.level;$('tStatus').value=t.status; openModal('techModal'); }
-function saveTech(){ const name=$('tName').value.trim(); if(!name){toast('请输入姓名');return;} const editId=$('techEditId').value; if(editId){ const t=techs.find(x=>x.id==editId); t.name=name;t.skill=$('tSkill').value;t.level=$('tLevel').value;t.status=$('tStatus').value; toast('美甲师已更新'); } else { const id=Math.max(0,...techs.map(t=>t.id))+1; techs.push({id,name,skill:$('tSkill').value,level:$('tLevel').value,status:$('tStatus').value,todayOrders:0,todayIncome:0,monthIncome:0}); toast('已新增美甲师 '+name); } saveData();renderAll();closeModal('techModal'); }
+function openTechModal(){ $('techModalTitle').textContent='新增美甲师'; $('techEditId').value=''; $('tName').value='';$('tSkill').value='';$('tLevel').value='初级美甲师';$('tStatus').value='online';$('tRate').value=''; openModal('techModal'); }
+function editTech(id){ const t=techs.find(x=>x.id==id); if(!t) return; $('techModalTitle').textContent='编辑美甲师'; $('techEditId').value=id; $('tName').value=t.name;$('tSkill').value=t.skill||'';$('tLevel').value=t.level;$('tStatus').value=t.status;$('tRate').value=(t.rate!=null && t.rate!=='')?t.rate:''; openModal('techModal'); }
+function saveTech(){ const name=$('tName').value.trim(); if(!name){toast('请输入姓名');return;} const rate=Math.max(0, parseFloat($('tRate').value)||0); const editId=$('techEditId').value; if(editId){ const t=techs.find(x=>x.id==editId); t.name=name;t.skill=$('tSkill').value;t.level=$('tLevel').value;t.status=$('tStatus').value;t.rate=rate; toast('美甲师已更新'); } else { const id=Math.max(0,...techs.map(t=>t.id))+1; techs.push({id,name,skill:$('tSkill').value,level:$('tLevel').value,status:$('tStatus').value,rate,todayOrders:0,todayIncome:0,monthIncome:0}); toast('已新增美甲师 '+name); } saveData();renderAll();closeModal('techModal'); }
 function deleteTech(id){ if(!confirm('确定删除该美甲师吗？')) return; techs=techs.filter(t=>t.id!==id); saveData();renderAll(); toast('已删除'); }
 
 // ===== 成本记录 =====
@@ -2810,6 +2834,18 @@ function materialCostOf(consume){
   }, 0);
 }
 
+// 技师提成：按该笔消费的美甲师提成比例 × 金额 自动算（未设比例则 0）
+function commissionOf(consume){
+  const t = techs.find(x => x.id == consume.techId);
+  const rate = t ? (+t.rate || 0) : 0;
+  if (!(rate > 0)) return 0;
+  return (+consume.amount || 0) * rate / 100;
+}
+function techRateOf(id){
+  const t = techs.find(x => x.id == id);
+  return t ? (+t.rate || 0) : 0;
+}
+
 // 材料单价表 CRUD
 function renderMaterials(){
   const entries = Object.entries(materials).sort((a,b)=>a[0].localeCompare(b[0],'zh'));
@@ -2874,24 +2910,31 @@ function renderCosts(){
   const incomeTotal = consumeInRange.reduce((s,c)=>s+(+c.amount||0),0);
   // 材料成本（自动：每笔消费 itemDetail × 单价）
   const matCost = consumeInRange.reduce((s,c)=>s+materialCostOf(c),0);
+  // 技师提成（自动：每笔消费金额 × 该美甲师提成比例）
+  const commCost = consumeInRange.reduce((s,c)=>s+commissionOf(c),0);
   // 其他成本（手动记录）
   const costInRange = inRange(costs);
   const otherCost = costInRange.reduce((s,c)=>s+(+c.amount||0),0);
-  const gross = incomeTotal - matCost;       // 毛利 = 收入 − 材料
-  const profit = gross - otherCost;          // 利润 = 毛利 − 其他成本
+  const gross = incomeTotal - matCost;                 // 毛利 = 收入 − 材料
+  const profit = gross - commCost - otherCost;         // 利润 = 毛利 − 提成 − 其他
   const scopeName = hasRange ? '区间' : '本月';
 
   $('matCostLabel').textContent = `材料成本（${scopeName}·自动）`;
   $('matCostTotal').textContent=fmt(matCost);
+  const ratedTechs = techs.filter(t=>+t.rate>0);
+  $('commLabel').textContent = `技师提成（${scopeName}·自动）`;
+  $('commTotal').textContent=fmt(commCost);
+  $('commDetail').textContent = techs.length===0 ? '先去「美甲师」页添加美甲师'
+    : (ratedTechs.length>0 ? `已设比例：${ratedTechs.map(t=>`${t.name} ${t.rate}%`).join(' · ')}` : '去「美甲师」页设置提成比例，按业绩自动算工资');
   $('otherCostLabel').textContent = `其他成本（${scopeName}·手动）`;
   $('otherCostTotal').textContent=fmt(otherCost);
   $('otherCostCount').textContent = `${costInRange.length} 笔记录`;
   $('grossLabel').textContent = `毛利（${scopeName}）`;
   $('grossValue').textContent=fmt(gross);
   $('grossDetail').textContent=`收入 ¥${fmt(incomeTotal)} − 材料 ¥${fmt(matCost)}`;
-  $('profitLabel').textContent = `利润（${scopeName}）`;
+  $('profitLabel').textContent = `利润（再−提成−其他）`;
   $('profitValue').textContent=fmt(profit);
-  $('profitDetail').textContent=`毛利 ¥${fmt(gross)} − 其他 ¥${fmt(otherCost)}${incomeTotal>0?` · 利润率 ${Math.round(profit/incomeTotal*100)}%`:''}`;
+  $('profitDetail').textContent=`毛利 ¥${fmt(gross)} − 提成 ¥${fmt(commCost)} − 其他 ¥${fmt(otherCost)}${incomeTotal>0?` · 利润率 ${Math.round(profit/incomeTotal*100)}%`:''}`;
 
   // 明细列表（分类过滤也生效）
   const cat=$('costCatFilter')?.value||'';
@@ -2973,7 +3016,7 @@ function renderIncome(){
   const diff=tiToday-yi;
   $('todayIncomeTrend').textContent=diff>=0?`今日 ¥${fmt(tiToday)} · 较昨日 ↑ ¥${fmt(diff)}`:`今日 ¥${fmt(tiToday)} · 较昨日 ↓ ¥${fmt(-diff)}`;
 
-  // ===== 利润概览（与成本页同口径：材料+其他）=====
+  // ===== 利润概览（与成本页同口径：材料+提成+其他）=====
   const costInRange=costs.filter(c=>{
     const d=String(c.date||'').slice(0,10);
     if(!d) return false;
@@ -2983,13 +3026,14 @@ function renderIncome(){
   });
   const otherCostTotal=costInRange.reduce((s,c)=>s+(+c.amount||0),0);
   const matCostTotal=tl.reduce((s,c)=>s+materialCostOf(c),0);
-  const costTotal=matCostTotal+otherCostTotal;
+  const commCostTotal=tl.reduce((s,c)=>s+commissionOf(c),0);
+  const costTotal=matCostTotal+commCostTotal+otherCostTotal;
   const profit=ti-costTotal;
   $('profitPanelTitle').textContent = hasRange ? '利润概览（区间）' : '利润概览（本月）';
   $('pfIncome').textContent=fmt(ti);
   $('pfCost').textContent=fmt(costTotal);
   $('pfProfit').textContent=fmt(profit);
-  $('pfRate').textContent = ti>0 ? `利润率 ${Math.round(profit/ti*100)}% · 材料 ¥${fmt(matCostTotal)} + 其他 ¥${fmt(otherCostTotal)}` : '';
+  $('pfRate').textContent = ti>0 ? `利润率 ${Math.round(profit/ti*100)}% · 材料 ¥${fmt(matCostTotal)} + 提成 ¥${fmt(commCostTotal)} + 其他 ¥${fmt(otherCostTotal)}` : '';
 
   // ===== 收款渠道统计 =====
   const CH_COLORS = {'微信':'#1aad19','美团':'#ffc300','支付宝':'#1677ff','抖音':'#111','现金':'#ff6b9d','会员卡':'#662e9b'};
@@ -3053,7 +3097,7 @@ function renderIncome(){
     const d=String(c.time||'').slice(0,10);
     if(!d) return;
     byDay[d]=byDay[d]||{n:0,sum:0,cost:0};
-    byDay[d].cost=(byDay[d].cost||0)+materialCostOf(c); // 材料成本（自动）
+    byDay[d].cost=(byDay[d].cost||0)+materialCostOf(c)+commissionOf(c); // 材料成本 + 技师提成（自动）
   });
   costInRange.forEach(c=>{
     const d=String(c.date||'').slice(0,10);
@@ -3077,13 +3121,16 @@ function renderIncome(){
     }).join('');
   }
 
-  // ===== 技师收入明细 =====
-  const ti2=techs.map(t=>{ const orders=tl.filter(c=>c.techId==t.id); const income=orders.reduce((s,c)=>s+(+c.amount||0),0); return {...t,orders:orders.length,income}; }).filter(t=>t.orders>0||t.status!=='offline').sort((a,b)=>b.income-a.income);
+  // ===== 技师收入明细（含提成工资）=====
+  const ti2=techs.map(t=>{ const orders=tl.filter(c=>c.techId==t.id); const income=orders.reduce((s,c)=>s+(+c.amount||0),0); const rate=+t.rate||0; return {...t,orders,income,rate,comm:rate>0?income*rate/100:0}; }).filter(t=>t.orders>0||t.status!=='offline').sort((a,b)=>b.income-a.income);
   const tbody=$('incomeTbody');
-  if(ti2.length===0){ tbody.innerHTML=`<tr><td colspan="5"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无收入数据</div></div></td></tr>`; }
+  if(ti2.length===0){ tbody.innerHTML=`<tr><td colspan="7"><div class="empty-state"><svg><use href="#i-empty"/></svg><div>暂无收入数据</div></div></td></tr>`; }
   else { const maxI=Math.max(...ti2.map(t=>t.income),1); tbody.innerHTML=ti2.map(t=>{ const pct=ti>0?Math.round(t.income/ti*100):0; return `<tr>
     <td><span class="member-avatar" style="background:${colorOf(t.name)}">${initial(t.name)}</span>${t.name}<br><span class="text-light" style="font-size:11px;margin-left:42px;">${t.level}</span></td>
-    <td>${t.orders} 单</td><td class="fw-700 text-pink">¥${fmt(t.income)}</td><td>${pct}%</td>
+    <td>${t.orders} 单</td><td class="fw-700 text-pink">¥${fmt(t.income)}</td>
+    <td>${t.rate>0?`<span class="tag" style="background:#ede9fe;color:#7c3aed;font-weight:700;">${t.rate}%</span>`:'<span class="text-light">—</span>'}</td>
+    <td>${t.rate>0?`<span class="fw-700" style="color:#7c3aed;">¥${fmt(t.comm)}</span>`:'<span class="text-light">—</span>'}</td>
+    <td>${pct}%</td>
     <td style="min-width:120px;"><div class="progress-bar"><div class="progress-fill" style="width:${t.income/maxI*100}%"></div></div></td></tr>`; }).join(''); }
 }
 
