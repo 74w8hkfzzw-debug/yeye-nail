@@ -1,14 +1,13 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v2'; // 升版本号强制清旧缓存
-const BASE = '/yeye-nail/';
+const CACHE_NAME = 'yeye-nail-v4'; // 升版本号强制清旧缓存（v4：新增成本记录 + 收入详情）
 const ASSETS = [
-  BASE,
-  BASE + 'index.html',
-  BASE + 'manifest.json',
-  BASE + 'icons/icon-192.png',
-  BASE + 'icons/icon-512.png',
-  BASE + 'icons/apple-touch-icon.png',
-  BASE + 'icons/favicon-32.png'
+  './',
+  './index.html',
+  './manifest.json',
+  './icons/icon-192.png',
+  './icons/icon-512.png',
+  './icons/apple-touch-icon.png',
+  './icons/favicon-32.png'
 ];
 
 // 安装：预缓存核心资源
@@ -33,6 +32,8 @@ self.addEventListener('fetch', e => {
   // 只缓存同源请求
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
+  // 数据同步 API 永远直连网络，绝不缓存（保证数据实时）
+  if (url.pathname.includes('/api/')) return;
 
   e.respondWith(
     fetch(e.request).then(res => {
@@ -45,7 +46,7 @@ self.addEventListener('fetch', e => {
       return res;
     }).catch(() => {
       // 离线时回退缓存
-      return caches.match(e.request).then(cached => cached || caches.match(BASE + 'index.html'));
+      return caches.match(e.request).then(cached => cached || caches.match('./index.html'));
     })
   );
 });
