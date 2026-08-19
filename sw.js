@@ -1,5 +1,5 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v13'; // 升版本号强制清旧缓存（v13：预约详情按钮按参考图调整——待确认显示「待确认(只读)+确认(深棕实心)+取消」，已确认显示「已确认(深绿实心)+取消」）
+const CACHE_NAME = 'yeye-nail-v14'; // 升版本号强制清旧缓存（v14：预约详情按钮恢复三按钮设计——待确认/已确认状态+编辑+删除，与参考图一致）
 const ASSETS = [
   './',
   './index.html',

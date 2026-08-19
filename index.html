@@ -588,30 +588,9 @@ body {
   background: #f5e9d4;
   color: #8b4513;
   border: 1px solid #e8c79a;
-}
-.bk-actions .btn-status.confirmed { background: #d4ead4; color: #2d6b2d; border-color: #a8d4a8; cursor: pointer; }
-.bk-actions .btn-status.confirmed-solid {
-  background: #2d6b2d;
-  color: #fff;
-  border: 1px solid #2d6b2d;
   cursor: pointer;
 }
-.bk-actions .btn-status.readonly {
-  background: #f5e9d4;
-  color: #8b4513;
-  border: 1px solid #e8c79a;
-  cursor: default;
-}
-.bk-actions .btn-confirm {
-  background: #2a1a0f;
-  color: #f5e9d4;
-  border: 1px solid #2a1a0f;
-  padding: 8px 22px;
-  font-size: 14px;
-  font-weight: 700;
-  box-shadow: 0 2px 8px rgba(42, 26, 15, 0.25);
-}
-.bk-actions .btn-confirm:hover { background: #3d2817; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(42, 26, 15, 0.35); }
+.bk-actions .btn-status.confirmed { background: #d4ead4; color: #2d6b2d; border-color: #a8d4a8; }
 .bk-actions .btn-edit {
   background: #fff;
   color: #5c3a24;
@@ -2221,7 +2200,7 @@ function toast(msg) { const t=$('toast'); t.textContent=msg; t.classList.add('sh
 function openModal(id) { $(id).classList.add('show'); }
 function closeModal(id) { $(id).classList.remove('show'); }
 function levelTag(level) { const map={'VIP':'pink','金卡':'orange','银卡':'blue','普通':'gray'}; return `<span class="tag ${map[level]||'gray'}">${level}</span>`; }
-function techName(id) { const t=techs.find(x=>x.id==id); return t?t.name:''; }
+function techName(id) { const t=techs.find(x=>x.id==id); return t?t.name:'—'; }
 // 兼容：memberId 可能是数字（已登记会员）或字符串（直接输入的姓名）
 function memberName(id) {
   if (typeof id === 'string' && isNaN(id)) return id; // 直接是姓名字符串
@@ -3581,29 +3560,25 @@ function renderBkDayDetail(){
     const mName = memberName(b.memberId);
     const tech = techName(b.techId);
     const isConfirmed = b.status === 'confirmed';
-    // 按钮组：待确认时显示「待确认(只读) + 确认(深棕实心) + 取消」；已确认时显示「已确认(深绿实心) + 取消」
-    let actionBtns;
-    if (isConfirmed) {
-      actionBtns = `
-        <button class="btn-status confirmed-solid" onclick="cancelConfirmBooking(${b.id})">已确认</button>
-        <button class="btn-delete" onclick="deleteBooking(${b.id})">取消</button>`;
-    } else {
-      actionBtns = `
-        <button class="btn-status readonly">待确认</button>
-        <button class="btn-confirm" onclick="confirmBooking(${b.id})">确认</button>
-        <button class="btn-delete" onclick="deleteBooking(${b.id})">取消</button>`;
-    }
+    // 状态按钮：待确认(浅米色胶囊) / 已确认(浅绿胶囊)，点击切换状态
+    const statusBtn = isConfirmed
+      ? `<button class="btn-status confirmed" onclick="cancelConfirmBooking(${b.id})">已确认</button>`
+      : `<button class="btn-status" onclick="confirmBooking(${b.id})">待确认</button>`;
     // 解析 item：格式为 "本甲+建构 · 纯色美甲"，拆成前置条件 + 款式
     const parts = (b.item || '').split(' · ');
     const conds = (b.conditions && b.conditions.length) ? b.conditions : (parts[0] ? parts[0].split('+').map(s=>s.trim()) : []);
     const style = parts[1] || '';
     const condsHtml = conds.length ? `<span class="sep">·</span><span>${conds.join(' / ')}</span>` : '';
     const styleHtml = style ? `<span class="sep">·</span><span>${style}</span>` : '';
-    const techHtml = `<span class="sep">·</span><span>${tech || '未指定'}</span>`;
+    const techHtml = `<span class="sep">·</span><span>${tech && tech !== '—' ? tech : '未指定'}</span>`;
     return `<div class="bk-detail-card">
       <div class="bk-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>${t}</div>
       <div class="bk-info">${mName}${styleHtml}${condsHtml}${techHtml}</div>
-      <div class="bk-actions">${actionBtns}</div>
+      <div class="bk-actions">
+        ${statusBtn}
+        <button class="btn-edit" onclick="editBooking(${b.id})">编辑</button>
+        <button class="btn-delete" onclick="deleteBooking(${b.id})">删除</button>
+      </div>
     </div>`;
   }).join('');
   box.innerHTML = `<h4><span class="cal-icon"><span class="cal-mon">${monthEn}</span><span class="cal-day">${+d}</span></span>${title}（${list.length}条）</h4>${rows}`;
