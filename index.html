@@ -790,14 +790,16 @@ tbody tr:hover { background: rgba(193,106,58,0.25); }
   border: 1.5px solid var(--border);
   border-radius: 10px;
   font-size: 14px;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   font-family: inherit;
   outline: none;
 }
 .pay-row select:focus, .pay-row input:focus {
   border-color: var(--primary);
-  background: var(--card-light);
+  background: #fff;
   color: #2a1a0f;
+  box-shadow: 0 0 0 3px rgba(193,106,58,0.35);
 }
 .pay-row .pay-del {
   background: rgba(229,72,77,0.15);
@@ -840,15 +842,16 @@ tbody tr:hover { background: rgba(193,106,58,0.25); }
   font-size: 14px;
   cursor: pointer;
   user-select: none;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   transition: all 0.2s;
 }
-.check-pill:hover { border-color: var(--primary); }
+.check-pill:hover { border-color: var(--primary); background: #fff; }
 .check-pill input[type="checkbox"] { margin: 0; cursor: pointer; }
 .check-pill:has(input:checked) {
   background: var(--primary-light);
   border-color: var(--primary);
-  color: var(--primary-dark);
+  color: #2a1a0f;
   font-weight: 600;
 }
 .selected-tags {
@@ -877,21 +880,23 @@ tbody tr:hover { background: rgba(193,106,58,0.25); }
 .item-row .item-name {
   font-size: 13px;
   font-weight: 600;
-  color: var(--text);
+  color: #2a1a0f;
 }
 .item-row select, .item-row input {
   padding: 8px 12px;
   border: 1.5px solid var(--border);
   border-radius: 10px;
   font-size: 14px;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   font-family: inherit;
   outline: none;
 }
 .item-row select:focus, .item-row input:focus {
   border-color: var(--primary);
-  background: var(--card-light);
+  background: #fff;
   color: #2a1a0f;
+  box-shadow: 0 0 0 3px rgba(193,106,58,0.35);
 }
 .item-row input.item-amt { text-align: right; }
 .item-row:has(input.item-amt:not(:placeholder-shown)) .item-name {
