@@ -589,7 +589,29 @@ body {
   color: #8b4513;
   border: 1px solid #e8c79a;
 }
-.bk-actions .btn-status.confirmed { background: #d4ead4; color: #2d6b2d; border-color: #a8d4a8; }
+.bk-actions .btn-status.confirmed { background: #d4ead4; color: #2d6b2d; border-color: #a8d4a8; cursor: pointer; }
+.bk-actions .btn-status.confirmed-solid {
+  background: #2d6b2d;
+  color: #fff;
+  border: 1px solid #2d6b2d;
+  cursor: pointer;
+}
+.bk-actions .btn-status.readonly {
+  background: #f5e9d4;
+  color: #8b4513;
+  border: 1px solid #e8c79a;
+  cursor: default;
+}
+.bk-actions .btn-confirm {
+  background: #2a1a0f;
+  color: #f5e9d4;
+  border: 1px solid #2a1a0f;
+  padding: 8px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(42, 26, 15, 0.25);
+}
+.bk-actions .btn-confirm:hover { background: #3d2817; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(42, 26, 15, 0.35); }
 .bk-actions .btn-edit {
   background: #fff;
   color: #5c3a24;
@@ -3559,9 +3581,18 @@ function renderBkDayDetail(){
     const mName = memberName(b.memberId);
     const tech = techName(b.techId);
     const isConfirmed = b.status === 'confirmed';
-    const statusBtn = isConfirmed
-      ? `<button class="btn-status confirmed" onclick="cancelConfirmBooking(${b.id})">已确认</button>`
-      : `<button class="btn-status" onclick="confirmBooking(${b.id})">待确认</button>`;
+    // 按钮组：待确认时显示「待确认(只读) + 确认(深棕实心) + 取消」；已确认时显示「已确认(深绿实心) + 取消」
+    let actionBtns;
+    if (isConfirmed) {
+      actionBtns = `
+        <button class="btn-status confirmed-solid" onclick="cancelConfirmBooking(${b.id})">已确认</button>
+        <button class="btn-delete" onclick="deleteBooking(${b.id})">取消</button>`;
+    } else {
+      actionBtns = `
+        <button class="btn-status readonly">待确认</button>
+        <button class="btn-confirm" onclick="confirmBooking(${b.id})">确认</button>
+        <button class="btn-delete" onclick="deleteBooking(${b.id})">取消</button>`;
+    }
     // 解析 item：格式为 "本甲+建构 · 纯色美甲"，拆成前置条件 + 款式
     const parts = (b.item || '').split(' · ');
     const conds = (b.conditions && b.conditions.length) ? b.conditions : (parts[0] ? parts[0].split('+').map(s=>s.trim()) : []);
@@ -3572,11 +3603,7 @@ function renderBkDayDetail(){
     return `<div class="bk-detail-card">
       <div class="bk-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>${t}</div>
       <div class="bk-info">${mName}${styleHtml}${condsHtml}${techHtml}</div>
-      <div class="bk-actions">
-        ${statusBtn}
-        <button class="btn-edit" onclick="editBooking(${b.id})">编辑</button>
-        <button class="btn-delete" onclick="deleteBooking(${b.id})">删除</button>
-      </div>
+      <div class="bk-actions">${actionBtns}</div>
     </div>`;
   }).join('');
   box.innerHTML = `<h4><span class="cal-icon"><span class="cal-mon">${monthEn}</span><span class="cal-day">${+d}</span></span>${title}（${list.length}条）</h4>${rows}`;
