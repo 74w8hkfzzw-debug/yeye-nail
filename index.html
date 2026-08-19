@@ -530,8 +530,85 @@ body {
   font-size: 13px;
   color: var(--text-light);
 }
-.calendar-day-detail h4 { margin: 0 0 8px; color: var(--text); font-size: 15px; }
-.calendar-day-detail .empty { color: var(--text-light); text-align: center; padding: 16px 0; }
+.calendar-day-detail h4 { margin: 0 0 12px; color: #2a1a0f; font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.calendar-day-detail h4 .cal-icon { width: 32px; height: 32px; background: #fff; border: 1.5px solid #e5484d; border-radius: 6px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; color: #2a1a0f; font-weight: 700; line-height: 1; }
+.calendar-day-detail h4 .cal-icon .cal-mon { font-size: 8px; color: #e5484d; letter-spacing: 0.5px; }
+.calendar-day-detail h4 .cal-icon .cal-day { font-size: 14px; margin-top: 1px; }
+.calendar-day-detail .empty { color: #5c3a24; text-align: center; padding: 16px 0; }
+
+/* 预约详情卡片（单行式） */
+.bk-detail-card {
+  background: #fff;
+  border: 1px solid rgba(92,58,36,0.15);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.bk-detail-card:last-child { margin-bottom: 0; }
+.bk-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #2a1a0f;
+  min-width: 80px;
+}
+.bk-time svg { width: 18px; height: 18px; fill: #b8956a; }
+.bk-info {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: #2a1a0f;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.bk-info .sep { color: #b8956a; margin: 0 6px; }
+.bk-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.bk-actions button {
+  border: none;
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.bk-actions .btn-status {
+  background: #f5e9d4;
+  color: #8b4513;
+  border: 1px solid #e8c79a;
+}
+.bk-actions .btn-status.confirmed { background: #d4ead4; color: #2d6b2d; border-color: #a8d4a8; }
+.bk-actions .btn-edit {
+  background: #fff;
+  color: #5c3a24;
+  border: 1px solid #d4b896;
+}
+.bk-actions .btn-edit:hover { background: #f5e9d4; }
+.bk-actions .btn-delete {
+  background: #fff;
+  color: #e5484d;
+  border: 1px solid #e5a8a8;
+}
+.bk-actions .btn-delete:hover { background: #fce8e8; }
+
+@media (max-width: 600px) {
+  .bk-detail-card { flex-wrap: wrap; padding: 12px; }
+  .bk-time { min-width: 0; font-size: 16px; }
+  .bk-info { flex: 1 1 100%; order: 3; }
+  .bk-actions { order: 2; width: 100%; justify-content: flex-end; }
+}
 
 /* ===== 按钮 ===== */
 .btn {
@@ -2122,7 +2199,7 @@ function toast(msg) { const t=$('toast'); t.textContent=msg; t.classList.add('sh
 function openModal(id) { $(id).classList.add('show'); }
 function closeModal(id) { $(id).classList.remove('show'); }
 function levelTag(level) { const map={'VIP':'pink','金卡':'orange','银卡':'blue','普通':'gray'}; return `<span class="tag ${map[level]||'gray'}">${level}</span>`; }
-function techName(id) { const t=techs.find(x=>x.id==id); return t?t.name:'—'; }
+function techName(id) { const t=techs.find(x=>x.id==id); return t?t.name:''; }
 // 兼容：memberId 可能是数字（已登记会员）或字符串（直接输入的姓名）
 function memberName(id) {
   if (typeof id === 'string' && isNaN(id)) return id; // 直接是姓名字符串
@@ -2744,7 +2821,30 @@ function saveBooking(){
   saveData();renderAll();closeModal('bookingModal');
 }
 function confirmBooking(id){ const b=bookings.find(x=>x.id==id); if(b){b.status='confirmed';saveData();renderAll();toast('已确认预约');} }
+function cancelConfirmBooking(id){ const b=bookings.find(x=>x.id==id); if(b){b.status='pending';saveData();renderAll();toast('已转为待确认');} }
 function deleteBooking(id){ if(!confirm('确定取消该预约吗？')) return; bookings=bookings.filter(b=>b.id!==id); saveData();renderAll(); toast('已取消预约'); }
+function editBooking(id){
+  const b=bookings.find(x=>x.id==id); if(!b) return;
+  $('bEditId').value = b.id;
+  $('bMemberList').innerHTML = members.map(m=>`<option value="${m.name}">`).join('');
+  $('bTech').innerHTML=techs.length?techs.map(t=>`<option value="${t.id}">${t.name} - ${t.level}</option>`).join(''):'<option value="">（暂无美甲师）</option>';
+  $('bMemberInput').value = memberName(b.memberId);
+  $('bTime').value = b.time || '';
+  const techs2 = $('bTech');
+  for (const opt of techs2.options) { if (+opt.value === b.techId) { techs2.value = b.techId; break; } }
+  // 解析 item：原来保存为 "本甲+建构 · 纯色美甲"
+  const conds = (b.conditions && b.conditions.length) ? b.conditions : (b.item ? b.item.split(' · ')[0].split('+').map(s=>s.trim()) : []);
+  document.querySelectorAll('#bConditionGrid input').forEach(c => { c.checked = conds.includes(c.value); });
+  renderConditionTags();
+  // 选中款式
+  const style = b.item ? b.item.split(' · ')[1] : '';
+  if (style) {
+    for (const opt of $('bItem').options) { if (opt.value === style) { $('bItem').value = style; break; } }
+  } else {
+    $('bItem').selectedIndex = 0;
+  }
+  openModal('bookingModal');
+}
 
 // 从 consumes 实时统计美甲师业绩（避免与收入页不同步）
 function calcTechStats(techId){
@@ -3448,29 +3548,38 @@ function renderBkDayDetail(){
   const [y,m,d] = bkSelectedDay.split('-');
   const date = new Date(y, +m-1, +d);
   const week = ['日','一','二','三','四','五','六'][date.getDay()];
-  const title = `${+m}月${+d}日 周${week}`;
+  const monthEn = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][+m-1];
+  const title = `${+m}月${+d}日 周${week}的预约`;
   if (!list.length) {
-    box.innerHTML = `<h4>${title}</h4><div class="empty">当天无预约</div>`;
+    box.innerHTML = `<h4><span class="cal-icon"><span class="cal-mon">${monthEn}</span><span class="cal-day">${+d}</span></span>${title}</h4><div class="empty">当天无预约</div>`;
     return;
   }
   const rows = list.map(b => {
     const t = String(b.time || '').slice(11,16);
-    const m = memberName(b.memberId);
-    const tech = techName(b.techId) || '未指定';
-    const st = b.status==='confirmed' ? '<span class="tag green">已确认</span>' : '<span class="tag orange">待确认</span>';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);gap:8px;">
-      <div style="flex:1;">
-        <div style="font-weight:600;color:var(--text);">${t} · ${m}</div>
-        <div style="font-size:12px;color:var(--text-light);">${b.item} · ${tech}</div>
-      </div>
-      <div>${st}</div>
-      <div style="display:flex;gap:4px;">
-        ${b.status==='pending' ? `<button class="btn btn-ghost btn-sm" onclick="confirmBooking(${b.id})">确认</button>` : ''}
-        <button class="btn btn-danger btn-sm" onclick="deleteBooking(${b.id})">取消</button>
+    const mName = memberName(b.memberId);
+    const tech = techName(b.techId);
+    const isConfirmed = b.status === 'confirmed';
+    const statusBtn = isConfirmed
+      ? `<button class="btn-status confirmed" onclick="cancelConfirmBooking(${b.id})">已确认</button>`
+      : `<button class="btn-status" onclick="confirmBooking(${b.id})">待确认</button>`;
+    // 解析 item：格式为 "本甲+建构 · 纯色美甲"，拆成前置条件 + 款式
+    const parts = (b.item || '').split(' · ');
+    const conds = (b.conditions && b.conditions.length) ? b.conditions : (parts[0] ? parts[0].split('+').map(s=>s.trim()) : []);
+    const style = parts[1] || '';
+    const condsHtml = conds.length ? `<span class="sep">·</span><span>${conds.join(' / ')}</span>` : '';
+    const styleHtml = style ? `<span class="sep">·</span><span>${style}</span>` : '';
+    const techHtml = `<span class="sep">·</span><span>${tech || '未指定'}</span>`;
+    return `<div class="bk-detail-card">
+      <div class="bk-time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 7v5l3 2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>${t}</div>
+      <div class="bk-info">${mName}${styleHtml}${condsHtml}${techHtml}</div>
+      <div class="bk-actions">
+        ${statusBtn}
+        <button class="btn-edit" onclick="editBooking(${b.id})">编辑</button>
+        <button class="btn-delete" onclick="deleteBooking(${b.id})">删除</button>
       </div>
     </div>`;
   }).join('');
-  box.innerHTML = `<h4>${title} · 共 ${list.length} 个预约</h4>${rows}`;
+  box.innerHTML = `<h4><span class="cal-icon"><span class="cal-mon">${monthEn}</span><span class="cal-day">${+d}</span></span>${title}（${list.length}条）</h4>${rows}`;
 }
 
 function renderDate(){ const d=new Date(); const week=['日','一','二','三','四','五','六'][d.getDay()]; $('todayDate').textContent=`${d.getMonth()+1}月${d.getDate()}日 周${week}`; }

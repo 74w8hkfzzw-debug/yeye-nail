@@ -1,5 +1,5 @@
 // 椰椰Nail Service Worker - 离线缓存
-const CACHE_NAME = 'yeye-nail-v11'; // 升版本号强制清旧缓存（v11：补漏米白化——消费弹窗项目明细行/支付明细行、预约弹窗前置条件复选框改米白底深棕字）
+const CACHE_NAME = 'yeye-nail-v12'; // 升版本号强制清旧缓存（v12：预约详情改单行卡片式——时间+客户+款式+前置条件+技师+状态/编辑/删除按钮，新增编辑预约与撤销确认）
 const ASSETS = [
   './',
   './index.html',
