@@ -221,7 +221,8 @@ body {
 }
 
 .stat-card {
-  background: var(--card);
+  background: var(--card-light);
+  color: #2a1a0f;
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -265,15 +266,16 @@ body {
 .stat-card.orange .stat-icon svg { fill: var(--warning); }
 .stat-card.purple .stat-icon svg { fill: #b794f6; }
 
-.stat-label { color: var(--text-light); font-size: 13px; margin-bottom: 4px; }
-.stat-value { font-size: 26px; font-weight: 700; }
+.stat-label { color: #5c3a24; font-size: 13px; margin-bottom: 4px; }
+.stat-value { font-size: 26px; font-weight: 700; color: #2a1a0f; }
 .stat-trend { font-size: 12px; margin-top: 6px; }
 .stat-trend.up { color: var(--success); }
 .stat-trend.down { color: var(--danger); }
 
 /* ===== 卡片容器 ===== */
 .panel {
-  background: var(--card);
+  background: var(--card-light);
+  color: #2a1a0f;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
@@ -289,7 +291,7 @@ body {
   gap: 10px;
 }
 
-.panel-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.panel-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #2a1a0f; }
 .panel-title::before { content: ''; width: 4px; height: 18px; background: var(--primary); border-radius: 2px; }
 
 .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -322,13 +324,14 @@ body {
   border: 1.5px solid var(--border);
   border-radius: 12px;
   font-size: 14px;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   transition: all 0.2s;
   outline: none;
   font-family: inherit;
 }
 
-.search-input:focus { border-color: var(--primary); background: var(--card-light); color: #2a1a0f; box-shadow: 0 0 0 3px rgba(193,106,58,0.35); }
+.search-input:focus { border-color: var(--primary); background: #fff; color: #2a1a0f; box-shadow: 0 0 0 3px rgba(193,106,58,0.35); }
 
 /* 日期筛选器 */
 .date-filter {
@@ -343,7 +346,8 @@ body {
   border: 1.5px solid var(--border);
   border-radius: 12px;
   font-size: 14px;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   font-family: inherit;
   outline: none;
   transition: all 0.2s;
@@ -351,11 +355,11 @@ body {
 .date-filter select:focus,
 .date-filter input[type="date"]:focus {
   border-color: var(--primary);
-  background: var(--card-light);
+  background: #fff;
   color: #2a1a0f;
   box-shadow: 0 0 0 3px rgba(193,106,58,0.35);
 }
-.date-filter input[type="date"] { color: var(--text); }
+.date-filter input[type="date"] { color: #2a1a0f; }
 .date-filter .clear-date {
   padding: 8px 12px;
   border: 1px solid var(--border);
@@ -380,12 +384,12 @@ body {
   border: 1.5px solid var(--border);
   border-radius: 10px;
   font-size: 13px;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   font-family: inherit;
   outline: none;
-  color: var(--text);
 }
-.range-filter input[type="date"]:focus { border-color: var(--primary); background: var(--card-light); color: #2a1a0f; }
+.range-filter input[type="date"]:focus { border-color: var(--primary); background: #fff; color: #2a1a0f; }
 
 /* ===== 预约管理（日历视图）===== */
 .booking-tabs {
@@ -568,11 +572,11 @@ table {
 }
 
 th {
-  background: var(--bg);
+  background: var(--card-light);
   padding: 12px 14px;
   text-align: left;
   font-weight: 600;
-  color: var(--text-light);
+  color: #2a1a0f;
   white-space: nowrap;
   position: sticky;
   top: 0;
@@ -582,10 +586,12 @@ td {
   padding: 12px 14px;
   border-top: 1px solid var(--border);
   white-space: nowrap;
+  color: #2a1a0f;
 }
 
-tbody tr { transition: background 0.15s; }
-tbody tr:hover { background: rgba(193,106,58,0.15); }
+tbody tr { transition: background 0.15s; background: #f5e9d4; }
+tbody tr:nth-child(even) { background: #ead9b8; }
+tbody tr:hover { background: rgba(193,106,58,0.25); }
 
 .tag {
   display: inline-block;
@@ -594,11 +600,11 @@ tbody tr:hover { background: rgba(193,106,58,0.15); }
   font-size: 11px;
   font-weight: 600;
 }
-.tag.pink { background: rgba(193,106,58,0.25); color: #f5e9d4; }
-.tag.green { background: rgba(109,189,109,0.25); color: #a8e0a8; }
-.tag.blue { background: rgba(106,163,216,0.25); color: #a0c8e8; }
-.tag.orange { background: rgba(232,160,82,0.25); color: var(--warning); }
-.tag.gray { background: rgba(184,149,106,0.2); color: #b8956a; }
+.tag.pink { background: rgba(193,106,58,0.18); color: #8b4513; }
+.tag.green { background: rgba(109,189,109,0.25); color: #2d6b2d; }
+.tag.blue { background: rgba(106,163,216,0.22); color: #2d5f8f; }
+.tag.orange { background: rgba(232,160,82,0.25); color: #8b5a1a; }
+.tag.gray { background: rgba(92,58,36,0.15); color: #5c3a24; }
 
 .member-avatar {
   width: 34px; height: 34px;
@@ -627,7 +633,8 @@ tbody tr:hover { background: rgba(193,106,58,0.15); }
 }
 
 .tech-card {
-  background: var(--card);
+  background: var(--card-light);
+  color: #2a1a0f;
   border-radius: var(--radius);
   padding: 20px;
   box-shadow: var(--shadow);
@@ -746,7 +753,7 @@ tbody tr:hover { background: rgba(193,106,58,0.15); }
 .modal-title svg { width: 20px; height: 20px; fill: var(--primary); }
 
 .form-group { margin-bottom: 16px; }
-.form-label { display: block; font-size: 13px; color: var(--text-light); margin-bottom: 6px; font-weight: 500; }
+.form-label { display: block; font-size: 13px; color: #5c3a24; margin-bottom: 6px; font-weight: 500; }
 .form-input, .form-select, .form-textarea {
   width: 100%;
   padding: 11px 14px;
@@ -754,11 +761,12 @@ tbody tr:hover { background: rgba(193,106,58,0.15); }
   border-radius: 10px;
   font-size: 14px;
   outline: none;
-  background: var(--bg);
+  background: var(--card-light);
+  color: #2a1a0f;
   font-family: inherit;
   transition: all 0.2s;
 }
-.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); background: var(--card-light); color: #2a1a0f; box-shadow: 0 0 0 3px rgba(193,106,58,0.35); }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--primary); background: #fff; color: #2a1a0f; box-shadow: 0 0 0 3px rgba(193,106,58,0.35); }
 .form-textarea { resize: vertical; min-height: 70px; }
 
 .form-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
